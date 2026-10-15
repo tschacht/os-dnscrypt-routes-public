@@ -1,0 +1,45 @@
+# Keep router credentials/live state out, except the explicitly owner-authorized
+# unencrypted disposable test VM restore bundle under test-vm/restore/2026-10-11/.
+.DS_Store
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+config.xml
+config-*.xml
+*.log
+*.pid
+*.redline.json
+backups/
+private/
+work/
+# Signed registry caches belong to the installed plugin, not this restore kit.
+public-resolvers.md
+public-resolvers.md.minisig
+relays.md
+relays.md.minisig
+odoh-servers.md
+odoh-servers.md.minisig
+odoh-relays.md
+odoh-relays.md.minisig
+__pycache__/
+*.pyc
+.venv/
+dist/
+vm-evidence-private/
+
+.pytest_cache/
+
+# Narrow exceptions (later rules win; no parent directory is excluded above).
+# Test fixtures may use the ignored basenames; they are synthetic, never from a router.
+!tests/fixtures/**/public-resolvers.md
+!tests/fixtures/**/public-resolvers.md.minisig
+!tests/fixtures/**/relays.md
+!tests/fixtures/**/relays.md.minisig
+!tests/fixtures/**/odoh-*.md
+!tests/fixtures/**/odoh-*.md.minisig
+!tests/fixtures/**/*.log
+# Test VM config exports (plan section 7, C-07 restore), committed by WP-12.
+!test-vm/snapshots/*/config.xml

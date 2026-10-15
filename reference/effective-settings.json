@@ -1,0 +1,94 @@
+{
+  "server_names": [
+    "scaleway-ams",
+    "cs-de",
+    "nwps.fi",
+    "dorriere-fr",
+    "dnscry.pt-nuremberg-ipv4"
+  ],
+  "lb_strategy": "wp2",
+  "edns_client_subnet": [
+    "146.70.82.0/24"
+  ],
+  "listen_addresses": [
+    "127.0.0.1:5353"
+  ],
+  "ipv4_servers": true,
+  "ipv6_servers": false,
+  "dnscrypt_servers": true,
+  "doh_servers": false,
+  "odoh_servers": false,
+  "require_dnssec": true,
+  "require_nolog": true,
+  "require_nofilter": true,
+  "dnscrypt_ephemeral_keys": true,
+  "cert_refresh_delay": 240,
+  "cache": false,
+  "block_ipv6": true,
+  "force_tcp": false,
+  "timeout": 2500,
+  "bootstrap_resolvers": [
+    "0.0.0.0:53"
+  ],
+  "ignore_system_dns": false,
+  "log_level": 2,
+  "use_syslog": false,
+  "netprobe_timeout": 30,
+  "max_clients": 250,
+  "keepalive": 30,
+  "tls_disable_session_tickets": true,
+  "query_log_configured": true,
+  "proxy_present": false,
+  "anonymized_dns": {
+    "routes": [
+      {
+        "server_name": "scaleway-ams",
+        "via": [
+          "anon-cs-de",
+          "anon-cs-fr"
+        ]
+      },
+      {
+        "server_name": "cs-de",
+        "via": [
+          "anon-scaleway-ams",
+          "anon-scaleway"
+        ]
+      },
+      {
+        "server_name": "nwps.fi",
+        "via": [
+          "anon-cs-de",
+          "anon-scaleway-ams"
+        ]
+      },
+      {
+        "server_name": "dorriere-fr",
+        "via": [
+          "anon-cs-de",
+          "anon-scaleway-ams"
+        ]
+      },
+      {
+        "server_name": "dnscry.pt-nuremberg-ipv4",
+        "via": [
+          "anon-cs-de",
+          "anon-scaleway-ams"
+        ]
+      }
+    ],
+    "skip_incompatible": true,
+    "direct_cert_fallback": true
+  },
+  "not_explicitly_configured": [
+    "enable_hot_reload",
+    "netprobe_address",
+    "lb_estimator",
+    "disabled_server_names"
+  ],
+  "private_rule_files_not_exported": {
+    "cloaking_rules": "cloaking-rules.txt",
+    "forwarding_rules": "forwarding-rules.txt",
+    "allowed_names.allowed_names_file": "whitelist.txt"
+  }
+}

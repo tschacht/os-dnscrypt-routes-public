@@ -1,0 +1,5 @@
+Adds per-resolver anonymized-DNS routes to os-dnscrypt-proxy.
+Choose which resolvers use which relays; the plugin renders the
+route settings into the dnscrypt-proxy template override.
+It depends on os-dnscrypt-proxy, which keeps owning the daemon,
+service and all other settings.

@@ -1,0 +1,10 @@
+[2026-10-12 10:00:01] [NOTICE] Anonymizing queries for [good-dnscrypt] via [anon-relay-a]
+[2026-10-12 10:00:01] [NOTICE] Anonymizing queries for [good-dnscrypt] via [anon-relay-b]
+[2026-10-12 10:00:02] [NOTICE] [good-dnscrypt] OK (DNSCrypt) - rtt: 41ms
+[2026-10-12 10:00:02] [NOTICE] [doh-one] OK (DoH) - rtt: 20ms
+[2026-10-12 10:00:03] [NOTICE] [direct-one] OK (DNSCrypt) - rtt: 30ms
+[2026-10-12 10:00:03] [NOTICE] Anonymizing queries for [slow-one] via [anon-relay-a]
+[2026-10-12 10:00:08] [NOTICE] [slow-one] TIMEOUT
+[2026-10-12 10:00:09] [NOTICE] Sorted latencies:
+[2026-10-12 10:00:09] [NOTICE] - 30ms direct-one
+[2026-10-12 10:00:09] [NOTICE] Server with the lowest initial latency: direct-one (rtt: 30ms), live servers: 3

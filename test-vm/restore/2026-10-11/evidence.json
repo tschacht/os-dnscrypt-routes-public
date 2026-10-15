@@ -1,0 +1,33 @@
+{
+  "backup_encrypted": false,
+  "companion_file_bytes_and_metadata_verified": true,
+  "companion_members": 104,
+  "download_matches_live_config_exactly": true,
+  "files": {
+    "companion-files.tar.gz": {
+      "bytes": 158405,
+      "sha256": "f91d11327df926ed2f45564a571c88cd126194df1377779f5b868e6fddb9eca9"
+    },
+    "opnsense-test-vm.xml": {
+      "bytes": 47493,
+      "sha256": "24945e66bc1caa9971d8cdb3b629c11d5576256cec15a31e22b7f8f27a519120"
+    }
+  },
+  "native_backup_download_http": 200,
+  "native_backup_get_http": 200,
+  "native_form_csrf_verified": true,
+  "native_tls_verified": true,
+  "production_access": false,
+  "query_log_contents_included": false,
+  "query_log_write_verified_by_metadata_only": true,
+  "query_logs_checkbox_enabled": true,
+  "restore_performed": false,
+  "retained_snapshots_and_pid_preserved": true,
+  "rrd_included": false,
+  "service_requests_during_export": 0,
+  "stage": "native-unencrypted-config-download-and-companion-export",
+  "status": "PASS",
+  "target": "dnscrypt-eu-offline-20261011",
+  "unbound_log_queries_saved_and_running": true,
+  "unbound_log_replies_saved_and_running": true
+}

@@ -1,0 +1,17 @@
+[2026-10-12 08:00:00] [NOTICE] dnscrypt-proxy 2.1.15
+[2026-10-12 08:00:00] [NOTICE] Network connectivity detected
+[2026-10-12 08:00:01] [NOTICE] Anonymizing queries for [old-one] via [anon-old-relay]
+[2026-10-12 08:00:02] [NOTICE] [old-one] OK (DNSCrypt) - rtt: 50ms
+[2026-10-12 08:00:03] [NOTICE] [old-two] OK (DNSCrypt) - rtt: 60ms
+[2026-10-12 08:00:03] [NOTICE] Server with the lowest initial latency: old-one (rtt: 50ms), live servers: 2
+[2026-10-12 08:00:09] [NOTICE] Stopped.
+[2026-10-12 10:00:00] [NOTICE] dnscrypt-proxy 2.1.15
+[2026-10-12 10:00:00] [NOTICE] Network connectivity detected
+[2026-10-12 10:00:01] [NOTICE] Anonymizing queries for [good-dnscrypt] via [anon-relay-a]
+[2026-10-12 10:00:01] [NOTICE] Anonymizing queries for [good-dnscrypt] via [anon-relay-b]
+[2026-10-12 10:00:02] [NOTICE] [good-dnscrypt] OK (DNSCrypt) - rtt: 41ms
+[2026-10-12 10:00:02] [NOTICE] [doh-one] OK (DoH) - rtt: 20ms
+[2026-10-12 10:00:03] [NOTICE] [direct-one] OK (DNSCrypt) - rtt: 30ms
+[2026-10-12 10:00:03] [NOTICE] Anonymizing queries for [slow-one] via [anon-relay-a]
+[2026-10-12 10:00:08] [NOTICE] [slow-one] TIMEOUT
+[2026-10-12 10:00:09] [NOTICE] Server with the lowest initial latency: direct-one (rtt: 30ms), live servers: 3

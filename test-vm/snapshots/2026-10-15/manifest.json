@@ -1,0 +1,27 @@
+{
+  "config_hash": "05ffc2d5dfb6a0a3d5c798fb603f212417237427729e8e854b1bd5533e95ba51",
+  "created_by": "test-vm/vm export",
+  "exported_at": "2026-10-15T08:10:20Z",
+  "files": {
+    "config.xml": {
+      "bytes": 43208,
+      "sha256": "05ffc2d5dfb6a0a3d5c798fb603f212417237427729e8e854b1bd5533e95ba51"
+    }
+  },
+  "format_version": 1,
+  "source": {
+    "plugins_commit": "45b79b80aff277fc9edc97ce18bcd91177c40554",
+    "repo_commit": "e2fec760b6bd72d65a26d2d49f9cbdfbdcc85a38"
+  },
+  "versions": {
+    "kernel": "FreeBSD 15.1-RELEASE-p1",
+    "opnsense": "OPNsense 26.7 (amd64)",
+    "packages": {
+      "dnscrypt-proxy2": "2.1.15_8",
+      "os-dnscrypt-proxy": "1.17",
+      "os-dnscrypt-routes": "1.0",
+      "unbound": "1.25.1_1"
+    }
+  },
+  "vm_name": "dnscrypt-routes-test-vm"
+}

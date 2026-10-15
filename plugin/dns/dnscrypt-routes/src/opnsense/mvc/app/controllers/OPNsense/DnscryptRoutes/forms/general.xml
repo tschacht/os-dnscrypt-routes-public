@@ -1,0 +1,38 @@
+<form>
+    <field>
+        <id>dnscryptroutes.general.enabled</id>
+        <label>Enable anonymized routing</label>
+        <type>checkbox</type>
+        <help>Overrides the server list, the relay list and the DNSCrypt/DoH/ODoH protocol settings on the Configuration page: only the resolvers below are used, each through its own relays. Unticked, dnscrypt-proxy.toml is generated exactly as without this plugin (stock, or the manual 90-eu override if its mapping is active).</help>
+    </field>
+    <field>
+        <id>dnscryptroutes.general.lbStrategy</id>
+        <label>Load balancing</label>
+        <type>dropdown</type>
+        <help>lb_strategy · how dnscrypt-proxy picks one of the enabled resolvers for each query.</help>
+    </field>
+    <field>
+        <id>dnscryptroutes.general.skipIncompatible</id>
+        <label>Skip incompatible routes</label>
+        <type>checkbox</type>
+        <help>skip_incompatible · turning it off allows direct queries</help>
+    </field>
+    <field>
+        <id>dnscryptroutes.general.directCertFallback</id>
+        <label>Direct certificate fallback</label>
+        <type>checkbox</type>
+        <help>direct_cert_fallback · Certificate fetch only, never user queries</help>
+    </field>
+    <field>
+        <id>dnscryptroutes.general.ecsEnabled</id>
+        <label>ECS subnet hint</label>
+        <type>checkbox</type>
+        <help>edns_client_subnet · Off by default. When ticked, the subnet below is sent to the resolvers as a location hint.</help>
+    </field>
+    <field>
+        <id>dnscryptroutes.general.ecsSubnet</id>
+        <label>ECS subnet</label>
+        <type>text</type>
+        <help>Any subnet is allowed. The preset 146.70.82.0/24 is synthetic; never use your WAN subnet, it may reveal your real network.</help>
+    </field>
+</form>

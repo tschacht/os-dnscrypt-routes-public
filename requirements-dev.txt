@@ -1,0 +1,4 @@
+# Offline tests run with python3 only (no PHP). Jinja2 is supplied by OPNsense on the router.
+Jinja2==3.1.6
+pytest==8.4.2
+tomli==2.5.0; python_version < "3.11"

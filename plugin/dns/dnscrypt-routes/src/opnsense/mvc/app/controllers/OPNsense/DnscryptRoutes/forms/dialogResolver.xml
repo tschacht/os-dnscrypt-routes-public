@@ -1,0 +1,33 @@
+<form>
+    <field>
+        <id>catalog_resolver</id>
+        <label>Pick from catalog</label>
+        <type>dropdown</type>
+        <hint>Search the signed public-resolvers.md catalog</hint>
+        <help>Searchable list of the resolvers in the signed public-resolvers.md catalog (name, country, protocol, description). Only DNSCrypt resolvers can be anonymized; the others are shown greyed out. Picking one fills in the name and the operator below; both stay editable.</help>
+    </field>
+    <field>
+        <id>resolver.enabled</id>
+        <label>Enabled</label>
+        <type>checkbox</type>
+        <help>Only enabled resolvers are written to server_names. An enabled resolver needs at least one relay.</help>
+    </field>
+    <field>
+        <id>resolver.name</id>
+        <label>Resolver</label>
+        <type>text</type>
+        <help>Resolver name as in public-resolvers.md, for example cs-de.</help>
+    </field>
+    <field>
+        <id>resolver.operator</id>
+        <label>Operator</label>
+        <type>text</type>
+        <help>Who runs this resolver. Pre-filled from the name (first label, aliases such as cs → cryptostorm). Relays with the same operator are locked in the route matrix.</help>
+    </field>
+    <field>
+        <id>resolver.relays</id>
+        <label>Relays</label>
+        <type>select_multiple</type>
+        <help>The relays this resolver may use (the same as the ticks in its matrix row). Two or more give failover.</help>
+    </field>
+</form>

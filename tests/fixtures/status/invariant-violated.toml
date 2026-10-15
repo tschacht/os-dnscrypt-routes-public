@@ -1,0 +1,3 @@
+# dnscrypt-routes: invariant-violated
+server_names = ['dnscrypt-routes-invalid-config']
+listen_addresses = ['127.0.0.1:5353']

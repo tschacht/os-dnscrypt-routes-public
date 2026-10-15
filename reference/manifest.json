@@ -1,0 +1,62 @@
+{
+  "format_version": 1,
+  "exported_at": "2026-10-10T21:11:17Z",
+  "versions": {
+    "opnsense": "OPNsense 26.7.6_3 (amd64)",
+    "packages": {
+      "os-dnscrypt-proxy": {
+        "exit_code": 0,
+        "result": "os-dnscrypt-proxy 1.17"
+      },
+      "dnscrypt-proxy2": {
+        "exit_code": 0,
+        "result": "dnscrypt-proxy2 2.1.15_8"
+      }
+    },
+    "kernel": "FreeBSD 15.1-RELEASE-p4 amd64",
+    "dnscrypt_proxy": "2.1.15"
+  },
+  "files": [
+    {
+      "destination": "artifacts/OPNsense/Dnscryptproxy/dnscrypt-proxy-eu.toml",
+      "source_path": "/usr/local/opnsense/service/templates/OPNsense/Dnscryptproxy/dnscrypt-proxy-eu.toml",
+      "sha256": "d3ac72afd5afd057e3cc5b244a14b71750a4740fd5972209c2eb837427a7de3d",
+      "source_mode": "0o644",
+      "source_uid": 0,
+      "source_gid": 0
+    },
+    {
+      "destination": "artifacts/OPNsense/Dnscryptproxy/+TARGETS.D/90-eu.TARGET",
+      "source_path": "/usr/local/opnsense/service/templates/OPNsense/Dnscryptproxy/+TARGETS.D/90-eu.TARGET",
+      "sha256": "b55a3b37fb7651f7ec5a8b197e6b545a2776b64d7b4ba93b2b6cde97e46517d6",
+      "source_mode": "0o600",
+      "source_uid": 0,
+      "source_gid": 0
+    },
+    {
+      "destination": "reference/stock-template.toml",
+      "source_path": "/usr/local/opnsense/service/templates/OPNsense/Dnscryptproxy/dnscrypt-proxy.toml",
+      "sha256": "76ec7c54becb2137fb26e442805a1ad320733f46af0f8efb64eed9d697c64067",
+      "source_mode": "0o644",
+      "source_uid": 0,
+      "source_gid": 0
+    },
+    {
+      "destination": "reference/stock-targets.txt",
+      "source_path": "/usr/local/opnsense/service/templates/OPNsense/Dnscryptproxy/+TARGETS",
+      "sha256": "1ee1329e60d4a88b2f4e79e8fc85f131b65675b9c7dc85e667782eeda0ff8ae9",
+      "source_mode": "0o644",
+      "source_uid": 0,
+      "source_gid": 0
+    }
+  ],
+  "excluded": [
+    "config.xml",
+    "credentials",
+    "query logs",
+    "signed source caches",
+    "private rule-file contents",
+    "full generated runtime TOML"
+  ],
+  "restore_test": "Not installed on a fresh router; source artifacts copied from the verified active deployment"
+}

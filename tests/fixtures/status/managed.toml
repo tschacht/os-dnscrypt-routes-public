@@ -1,0 +1,4 @@
+# dnscrypt-routes: managed
+server_names = ['good-dnscrypt','direct-one']
+lb_strategy = 'wp2'
+listen_addresses = ['127.0.0.1:5353']

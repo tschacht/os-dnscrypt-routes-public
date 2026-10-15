@@ -1,0 +1,20 @@
+{
+  "relays": [
+    {"name": "anon-cs-de", "operator": "cryptostorm"},
+    {"name": "anon-cs-fr", "operator": "cryptostorm"},
+    {"name": "anon-scaleway-ams", "operator": "scaleway"},
+    {"name": "anon-scaleway", "operator": "scaleway"}
+  ],
+  "resolvers": [
+    {"name": "scaleway-ams", "operator": "scaleway", "enabled": 1,
+     "relays": ["anon-cs-de", "anon-cs-fr"]},
+    {"name": "cs-de", "operator": "cryptostorm", "enabled": 1,
+     "relays": ["anon-scaleway-ams", "anon-scaleway"]},
+    {"name": "nwps.fi", "operator": "nwps", "enabled": 1,
+     "relays": ["anon-cs-de", "anon-scaleway-ams"]},
+    {"name": "dorriere-fr", "operator": "dorriere", "enabled": 1,
+     "relays": ["anon-cs-de", "anon-scaleway-ams"]},
+    {"name": "dnscry.pt-nuremberg-ipv4", "operator": "dnscry.pt", "enabled": 1,
+     "relays": ["anon-cs-de", "anon-scaleway-ams"]}
+  ]
+}

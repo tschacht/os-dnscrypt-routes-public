@@ -1,0 +1,887 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Clear-cut revision plan — os-dnscrypt-routes (formerly os-dnscrypt-eu)</title>
+<style>
+  :root {
+    color-scheme: light;
+    --surface-1:#fcfcfb; --surface-2:#f3f2ef; --line:#dedcd6;
+    --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7974;
+    --accent:#d94f00; --accent-soft:#fdeee5;
+    --series-1:#2a78d6; --series-2:#eb6834;
+    --op-cs:#7a3db8; --op-cs-soft:#f4ecff; --op-sw:#1565c0; --op-sw-soft:#eaf3ff;
+    --good:#2e7d32; --warn:#b26a00; --bad:#c62828;
+    --code-bg:#f1f0ec;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --surface-1:#1a1a19; --surface-2:#242422; --line:#3a3936;
+      --text-primary:#ffffff; --text-secondary:#c3c2b7; --text-muted:#9a998f;
+      --accent:#f07a35; --accent-soft:#3a2416;
+      --series-1:#3987e5; --series-2:#d95926;
+      --op-cs:#b48ef0; --op-cs-soft:#2d2340; --op-sw:#6fa8f0; --op-sw-soft:#1c2a3d;
+      --good:#5cb860; --warn:#e0a030; --bad:#ef6a6a;
+      --code-bg:#2a2a28;
+    }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--surface-1); color:var(--text-primary);
+         font:15px/1.6 -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+  .page { max-width:1180px; margin:0 auto; padding:40px 28px 80px; }
+  h1 { font-size:30px; margin:0 0 4px; line-height:1.2; }
+  h2 { font-size:21px; margin:48px 0 10px; padding-top:12px; border-top:1px solid var(--line); }
+  h3 { font-size:16px; margin:24px 0 6px; }
+  p, li { color:var(--text-primary); }
+  .sub { color:var(--text-secondary); margin:0 0 20px; }
+  .muted { color:var(--text-muted); }
+  code { font:13px/1.4 ui-monospace, "SF Mono", Menlo, monospace; background:var(--code-bg); padding:1px 5px; border-radius:3px; }
+  pre { font:12.5px/1.5 ui-monospace, "SF Mono", Menlo, monospace; background:var(--code-bg); padding:12px 14px; border-radius:6px; overflow:auto; }
+  a { color:var(--series-1); }
+  .tldr { background:var(--accent-soft); border-left:4px solid var(--accent); padding:14px 18px; border-radius:4px; }
+  .tldr ul { margin:6px 0 0; padding-left:20px; }
+  table.t { border-collapse:collapse; width:100%; margin:10px 0; font-size:14px; }
+  table.t th, table.t td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; vertical-align:top; }
+  table.t th { color:var(--text-secondary); font-weight:600; font-size:13px; }
+  .tag { display:inline-block; font-size:11.5px; font-weight:600; padding:1px 8px; border-radius:10px; border:1px solid; white-space:nowrap; }
+  .tag.del { color:var(--bad); border-color:var(--bad); }
+  .tag.keep { color:var(--good); border-color:var(--good); }
+  .tag.rew { color:var(--warn); border-color:var(--warn); }
+  .tag.new { color:var(--series-1); border-color:var(--series-1); }
+  figure { margin:22px 0; padding:16px; background:var(--surface-2); border:1px solid var(--line); border-radius:8px; }
+  figcaption { color:var(--text-secondary); font-size:13px; margin-top:10px; }
+  figure svg { width:100%; height:auto; display:block; }
+  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:820px) { .grid2 { grid-template-columns:1fr; } }
+  .card { border:1px solid var(--line); border-radius:6px; padding:12px 16px; background:var(--surface-1); }
+  .card h3 { margin-top:0; }
+  .q { border:1px solid var(--line); border-radius:6px; padding:10px 14px; margin:10px 0; }
+  .q b { color:var(--accent); }
+
+  /* ---------- chart ---------- */
+  .viz-legend { display:flex; gap:18px; font-size:13px; color:var(--text-secondary); margin-bottom:6px; }
+  .viz-legend i { display:inline-block; width:12px; height:12px; border-radius:2px; margin-right:6px; vertical-align:-1px; }
+  #sizeChart text { font-size:12.5px; fill:var(--text-secondary); }
+  #sizeChart .val { fill:var(--text-primary); font-size:12px; }
+  #sizeChart .grid { stroke:var(--line); stroke-width:1; }
+  #sizeChart .hit { fill:transparent; cursor:default; }
+  .viz-tip { position:fixed; pointer-events:none; background:var(--surface-1); color:var(--text-primary); border:1px solid var(--line);
+             border-radius:6px; padding:6px 10px; font-size:12.5px; box-shadow:0 4px 14px rgba(0,0,0,.15); display:none; z-index:5; }
+  details summary { cursor:pointer; color:var(--text-secondary); font-size:13px; }
+
+  /* ---------- diagrams ---------- */
+  .dg text { font-family:-apple-system, "Segoe UI", Arial, sans-serif; fill:var(--text-primary); }
+  .dg .lbl { font-size:13px; } .dg .small { font-size:11px; fill:var(--text-secondary); }
+  .dg .head { font-size:13px; font-weight:700; fill:var(--text-secondary); letter-spacing:.5px; }
+  .dg .box { fill:var(--surface-1); stroke:var(--line); stroke-width:1.5; }
+  .dg .box.old { stroke:var(--text-muted); stroke-dasharray:4 3; }
+  .dg .box.new { stroke:var(--accent); }
+  .dg .box.opt { stroke:var(--series-1); stroke-dasharray:5 3; }
+  .dg .arrow { stroke:var(--text-secondary); stroke-width:1.6; fill:none; marker-end:url(#ah); }
+  .dg .arrow.opt { stroke:var(--series-1); stroke-dasharray:5 3; marker-end:url(#ahb); }
+  .dg .x { stroke:var(--bad); stroke-width:2; }
+  .dg .ok { stroke:var(--good); stroke-width:2; fill:none; }
+  .dg .no { stroke:var(--bad); stroke-width:2; stroke-dasharray:5 4; fill:none; }
+  .dg .opcs { fill:var(--op-cs-soft); stroke:var(--op-cs); stroke-width:1.5; }
+  .dg .opsw { fill:var(--op-sw-soft); stroke:var(--op-sw); stroke-width:1.5; }
+  .dg .opot { fill:var(--surface-1); stroke:var(--text-muted); stroke-width:1.5; }
+
+  /* ---------- UI mockup (scoped, always light like the OPNsense default theme) ---------- */
+  .mock { --m-accent:#d94f00; --m-ink:#2b2b2b; --m-muted:#6b6b6b; --m-line:#dcdcdc; --m-bg:#f2f2f2; --m-side:#2d2d2d;
+          --m-ok:#2e7d32; --m-warn:#b26a00; --m-bad:#c62828;
+          color-scheme:light; font:12.5px/1.45 "Helvetica Neue", Arial, sans-serif; color:var(--m-ink); background:var(--m-bg);
+          border:1px solid #bbb; border-radius:6px; overflow:hidden; }
+  .mock * { box-sizing:border-box; }
+  .mock .hdr { height:46px; background:#fff; border-bottom:1px solid var(--m-line); display:flex; align-items:center; padding:0 16px; }
+  .mock .logo { font-weight:700; font-size:18px; color:var(--m-ink); } .mock .logo b { color:var(--m-accent); }
+  .mock .hdr .r { margin-left:auto; color:var(--m-muted); }
+  .mock .wrap { display:flex; }
+  .mock nav { width:190px; flex:none; background:var(--m-side); color:#cfcfcf; padding-top:6px; }
+  .mock nav div { padding:6px 14px; } .mock nav .g { color:#fff; font-weight:600; }
+  .mock nav .s1 { padding-left:28px; } .mock nav .s2 { padding-left:40px; }
+  .mock nav .on { background:#454545; color:#fff; border-left:3px solid var(--m-accent); padding-left:37px; }
+  .mock main { flex:1; min-width:0; padding:12px 16px 18px; }
+  .mock .crumbs { display:flex; align-items:center; font-size:16px; margin-bottom:10px; flex-wrap:wrap; gap:4px; }
+  .mock .crumbs > span { color:var(--m-muted); margin:0 4px; }
+  .mock .svc { margin-left:auto; display:flex; gap:5px; align-items:center; font-size:11.5px; }
+  .mock .pill { background:var(--m-ok); color:#fff; border-radius:3px; padding:2px 8px; }
+  .mock .ico { border:1px solid var(--m-line); background:#fff; border-radius:3px; padding:1px 7px; }
+  .mock .status { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:10px; }
+  .mock .tile { background:#fff; border:1px solid var(--m-line); border-radius:3px; padding:8px 10px; }
+  .mock .tile .k { color:var(--m-muted); font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; }
+  .mock .tile .v { font-size:15px; font-weight:600; }
+  .mock .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px; }
+  .mock .bx { background:#fff; border:1px solid var(--m-line); border-radius:3px; margin-bottom:10px; }
+  .mock .bx h4 { margin:0; padding:8px 12px; font-size:13.5px; border-bottom:1px solid var(--m-line); background:#fafafa; display:flex; align-items:center; gap:10px; }
+  .mock .bx h4 small { margin-left:auto; font-weight:400; color:var(--m-muted); font-size:11.5px; text-align:right; }
+  .mock .cols { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mock table { border-collapse:collapse; width:100%; }
+  .mock td, .mock th { padding:6px 10px; border-bottom:1px solid #eee; text-align:left; vertical-align:middle; }
+  .mock th { font-size:11.5px; color:var(--m-muted); font-weight:600; }
+  .mock .form td:first-child { width:46%; font-weight:600; }
+  .mock .form .h { display:block; font-weight:400; color:var(--m-muted); font-size:11px; }
+  .mock .chk { display:inline-block; width:14px; height:14px; border:1px solid #999; border-radius:2px; vertical-align:-3px; position:relative; background:#fff; }
+  .mock .chk.on { background:var(--m-accent); border-color:var(--m-accent); }
+  .mock .chk.on::after { content:""; position:absolute; left:4px; top:1px; width:4px; height:8px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+  .mock .sel, .mock .inp { display:inline-block; border:1px solid #bbb; border-radius:3px; padding:3px 8px; background:#fff; }
+  .mock .inp.dis { color:#aaa; background:#f6f6f6; }
+  .mock .op { display:inline-block; font-size:10.5px; border-radius:10px; padding:0 7px; border:1px solid; white-space:nowrap; }
+  .mock .op.cs { color:#7a3db8; border-color:#c9a8ee; background:#f6efff; }
+  .mock .op.sw { color:#1565c0; border-color:#a7c8f0; background:#eef5ff; }
+  .mock .op.ot { color:#555; border-color:#ccc; background:#f6f6f6; }
+  .mock .cc { font-size:10.5px; color:var(--m-muted); margin-left:3px; }
+  .mock .ac { white-space:nowrap; color:var(--m-muted); }
+  .mock .add { padding:7px 10px; color:var(--m-accent); font-weight:600; }
+  .mock .mx th.rel { text-align:center; font-size:11px; line-height:1.35; }
+  .mock .mx td.c { text-align:center; }
+  .mock .mx td.lock { background:repeating-linear-gradient(135deg,#f3f3f3 0 6px,#e1e1e1 6px 8px); color:#888; font-size:10.5px; }
+  .mock .cnt { font-weight:600; } .mock .cnt.low { color:var(--m-warn); }
+  .mock .lg { display:flex; gap:16px; padding:7px 10px; color:var(--m-muted); font-size:11.5px; border-top:1px solid #eee; flex-wrap:wrap; }
+  .mock .sw8 { display:inline-block; width:20px; height:12px; vertical-align:-2px; margin-right:5px; border:1px solid #ccc;
+               background:repeating-linear-gradient(135deg,#f3f3f3 0 4px,#d6d6d6 4px 6px); }
+  .mock .alert { margin:8px 10px; padding:7px 10px; border-radius:3px; border:1px solid #f0c27b; background:#fff7e8; color:#7a4a00; font-size:12px; }
+  .mock .acts { display:flex; gap:8px; align-items:center; margin:2px 0 10px; flex-wrap:wrap; }
+  .mock .btn { border-radius:3px; padding:6px 14px; font-weight:600; border:1px solid #bbb; background:#fff; color:var(--m-ink); }
+  .mock .btn.pri { background:var(--m-accent); border-color:var(--m-accent); color:#fff; }
+  .mock .acts .n { color:var(--m-muted); font-size:11.5px; }
+  .mock .okc { color:var(--m-ok); font-weight:600; } .mock .badc { color:var(--m-bad); font-weight:600; }
+  @media (max-width:900px) { .mock nav { display:none; } .mock .cols, .mock .status { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Clear-cut revision plan</h1>
+<p class="sub">os-dnscrypt-routes (formerly os-dnscrypt-eu): from a gated lifecycle manager to a small, normal OPNsense plugin · draft 2026-10-12 · high-level, for discussion</p>
+
+<div class="tldr">
+  <b>In short:</b> the plugin's real job is to write about ten lines into <code>dnscrypt-proxy.toml</code>:
+  resolver names, per-resolver relay routes, <code>lb_strategy</code>, two booleans and an optional ECS hint.
+  Today that job sits behind roughly 2,600 lines of lifecycle machinery (adopt, preflight, return-control, package locks,
+  journals and hash allowlists), about 6,100 lines of tests and about 4,100 lines of review paperwork.
+  <ul>
+    <li><b>Replace</b> that machinery with a standard OPNsense <i>model → template → restart</i> plugin. <b>Save &amp; Apply</b> takes effect immediately.</li>
+    <li><b>Add</b> the missing resolver/relay editor: a route matrix that <b>blocks</b> any relay run by the resolver's own operator.</li>
+    <li><b>Keep</b> an <i>optional</i> <b>Save &amp; Test</b>. It runs the candidate config in a throw-away dnscrypt-proxy on <code>127.0.0.1:5354</code>, so live DNS is never touched.</li>
+    <li><b>Keep</b> the manual two-file restore kit and the test-VM snapshot, and <b>script</b> the entire test-VM lifecycle.</li>
+    <li><b>Keep</b> git history intact. All deletions are normal commits.</li>
+    <li><b>Execute</b> as 13 work packets that agents can run in parallel, with checkbox tracking and independent review loops (§9–§11, <a href="revision-history.md"><code>docs/implementation/</code></a> <em>(archived in the tag <code>revision-process</code>)</em>).</li>
+  </ul>
+</div>
+
+<h2>1. Decisions already made</h2>
+<table class="t">
+  <tr><th style="width:28%">Topic</th><th>Decision</th></tr>
+  <tr><td>Manual restore kit</td><td>Keep it next to the plugin as a no-plugin fallback, with its documentation trimmed into one concise guide.</td></tr>
+  <tr><td>Resolver ↔ relay rule</td><td>You pick each resolver's relays yourself. Saving is <b>refused</b> when a resolver and one of its relays share an operator.</td></tr>
+  <tr><td>Test before applying</td><td>Optional live test in a temporary side instance. Apply stays one click.</td></tr>
+  <tr><td>Git history</td><td>Keep it intact. Remove files in ordinary commits.</td></tr>
+  <tr><td>Test VM</td><td>Keep the VM and its exported config snapshot. Automate create, network, provision (settings + plugin), update and full removal with scripts. Use the <b>nano</b> image.</td></tr>
+  <tr><td>Menu</td><td>Services → DNSCrypt-Proxy → <b>Anonymized Routing</b>.</td></tr>
+  <tr><td>Preset</td><td>A fresh install seeds the vetted five resolvers, four relays and their routes, disabled until you tick Enable. Canonical source: <code>reference/effective-settings.json</code> (C-01).</td></tr>
+  <tr><td>ECS</td><td>Off by default. Any subnet is accepted, with a privacy warning. The field is pre-filled with the synthetic <code>146.70.82.0/24</code>.</td></tr>
+  <tr><td>Exposed settings</td><td><code>lb_strategy</code>, <code>skip_incompatible</code>, <code>direct_cert_fallback</code> and ECS. <code>skip_incompatible</code> stays user-editable, but turning it off voids the relay-only guarantee (R-21) and shows a red notice. Nothing else: all other relevant dnscrypt-proxy settings are already on the stock Configuration page, and the remaining unexposed ones (<code>lb_estimator</code>, <code>netprobe_address</code>, <code>enable_hot_reload</code>) don't help routing.</td></tr>
+  <tr><td>Name</td><td><code>os-dnscrypt-routes</code>. Model <code>OPNsense/DnscryptRoutes</code>, page "Anonymized Routing".</td></tr>
+  <tr><td>Test-VM credentials</td><td>The throw-away guest's root password and SSH key path are committed in <code>test-vm/vm.env</code>.</td></tr>
+  <tr><td>Production router</td><td><b>Out of scope.</b> The repo only keeps the documentation for the current non-plugin manual override.</td></tr>
+</table>
+
+<h2>2. Diagnosis: what is in the repo today</h2>
+<p>The figures below are lines in tracked files, measured on <code>0d4d83b</code>. Target values are estimates for the revised layout.</p>
+
+<figure>
+  <div class="viz-legend"><span><i style="background:var(--series-1)"></i>Today (measured)</span><span><i style="background:var(--series-2)"></i>After revision (estimate)</span></div>
+  <svg id="sizeChart" viewBox="0 0 980 312" role="img" aria-label="Lines of code per area, today versus after revision"></svg>
+  <figcaption><b>Figure 1 · Where the lines are.</b> Tests, process documents and lifecycle backend scripts make up about 80 % of the repo. Even so, the
+  feature users actually need, a resolver/relay editor, does not exist. The test-VM area <i>grows</i> slightly: the snapshot stays and
+  provisioning scripts are added.</figcaption>
+  <details><summary>Table view</summary>
+    <table class="t" id="sizeTable"><tr><th>Area</th><th>Today</th><th>After (est.)</th></tr></table>
+  </details>
+</figure>
+<div class="viz-tip" id="vizTip"></div>
+
+<div class="grid2">
+  <div class="card">
+    <h3>What is essential</h3>
+    <ul>
+      <li>The <code>+TARGETS.D</code> override mechanism. It is proven by the current manual override and is upstream's documented extension point.</li>
+      <li>The policy values: 5 resolvers, their routes, <code>wp2</code>, <code>skip_incompatible</code>, <code>direct_cert_fallback</code> and the optional synthetic ECS.</li>
+      <li>The operator-separation rationale from the README.</li>
+      <li>The manual kit (<code>artifacts/</code>), <code>reference/stock-template.toml</code> as an upgrade-diff baseline, and the test-VM snapshot.</li>
+      <li>MVC basics that can be reused: Menu/ACL, IndexController and the ECS help text.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>What is not essential</h3>
+    <ul>
+      <li>Adopt / preflight / return-control state machine, journals, root-only backups, restart-free detach (<code>manager.py</code>, 907 lines).</li>
+      <li>Persistent <code>pkg lock</code> enforcement, upgrade checkpoints and pre/post (de)install hooks.</li>
+      <li>Version/hash compatibility allowlist that blocks installs on any OPNsense patch release.</li>
+      <li>The settings-bridge JSON template, PHP importers and ACL refresh helper.</li>
+      <li>21 review/fix/re-review records, 2 superpowers plan/spec files and an 884-line build "acceptance record".</li>
+      <li>Tests that pin the above, including PHP harnesses and JS fixtures.</li>
+    </ul>
+  </div>
+</div>
+
+<h2>3. Target architecture</h2>
+
+<figure>
+<svg class="dg" viewBox="0 0 1100 400" role="img" aria-label="Before and after workflow">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#8a8984"/></marker>
+    <marker id="ahb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2a78d6"/></marker>
+  </defs>
+  <text x="10" y="22" class="head">TODAY: 5 CONFIRMED STEPS, 0 ROUTE EDITING</text>
+  <g>
+    <rect class="box old" x="10"  y="36" width="160" height="56" rx="6"/><text x="90"  y="60" text-anchor="middle" class="lbl">Save desired</text><text x="90" y="78" text-anchor="middle" class="small">enabled · ECS only</text>
+    <rect class="box old" x="200" y="36" width="160" height="56" rx="6"/><text x="280" y="60" text-anchor="middle" class="lbl">Preflight</text><text x="280" y="78" text-anchor="middle" class="small">sandbox, confirm</text>
+    <rect class="box old" x="390" y="36" width="160" height="56" rx="6"/><text x="470" y="60" text-anchor="middle" class="lbl">Adopt</text><text x="470" y="78" text-anchor="middle" class="small">hash match 90-eu, confirm</text>
+    <rect class="box old" x="580" y="36" width="160" height="56" rx="6"/><text x="660" y="60" text-anchor="middle" class="lbl">Apply</text><text x="660" y="78" text-anchor="middle" class="small">pkg lock, journal, confirm</text>
+    <rect class="box old" x="770" y="36" width="170" height="56" rx="6"/><text x="855" y="60" text-anchor="middle" class="lbl">Return-control</text><text x="855" y="78" text-anchor="middle" class="small">detach, unlock, confirm</text>
+    <path class="arrow" d="M170,64 H196"/><path class="arrow" d="M360,64 H386"/><path class="arrow" d="M550,64 H576"/><path class="arrow" d="M740,64 H766"/>
+    <text x="10" y="118" class="small">plus: compatibility hash allowlist · settings bridge JSON · ACL refresh · install/upgrade/removal hooks · 178 tests · 21 review records</text>
+  </g>
+
+  <text x="10" y="170" class="head">AFTER: ONE CLICK, OPTIONAL TEST</text>
+  <g>
+    <rect class="box new" x="10"  y="186" width="180" height="60" rx="6"/><text x="100" y="211" text-anchor="middle" class="lbl">Edit settings</text><text x="100" y="229" text-anchor="middle" class="small">resolvers · relays · matrix</text>
+    <rect class="box new" x="250" y="186" width="180" height="60" rx="6"/><text x="340" y="211" text-anchor="middle" class="lbl" font-weight="700">Save &amp; Apply</text><text x="340" y="229" text-anchor="middle" class="small">validation blocks bad routes</text>
+    <rect class="box new" x="490" y="186" width="220" height="60" rx="6"/><text x="600" y="211" text-anchor="middle" class="lbl">template reload + restart</text><text x="600" y="229" text-anchor="middle" class="small">stock OPNsense reconfigure</text>
+    <rect class="box new" x="770" y="186" width="170" height="60" rx="6"/><text x="855" y="211" text-anchor="middle" class="lbl">Status</text><text x="855" y="229" text-anchor="middle" class="small">running · live servers N/M</text>
+    <path class="arrow" d="M190,216 H246"/><path class="arrow" d="M430,216 H486"/><path class="arrow" d="M710,216 H766"/>
+
+    <rect class="box opt" x="250" y="296" width="180" height="60" rx="6"/><text x="340" y="321" text-anchor="middle" class="lbl">Save &amp; Test</text><text x="340" y="339" text-anchor="middle" class="small">optional</text>
+    <rect class="box opt" x="490" y="296" width="220" height="60" rx="6"/><text x="600" y="321" text-anchor="middle" class="lbl">temp instance :5354</text><text x="600" y="339" text-anchor="middle" class="small">render → start → query → stop</text>
+    <rect class="box opt" x="770" y="296" width="170" height="60" rx="6"/><text x="855" y="321" text-anchor="middle" class="lbl">Per-route report</text><text x="855" y="339" text-anchor="middle" class="small">then "Apply" button</text>
+    <path class="arrow opt" d="M120,246 V326 H246"/><path class="arrow opt" d="M430,326 H486"/><path class="arrow opt" d="M710,326 H766"/>
+    <path class="arrow opt" d="M940,326 H1000 V272 H600 V250"/>
+    <text x="1006" y="300" class="small">Apply</text>
+  </g>
+</svg>
+<figcaption><b>Figure 2 · Workflow before and after.</b> Dashed grey marks removed steps, orange the default path and blue the optional test path.
+The test never writes the live config, log, cache or listener.</figcaption>
+</figure>
+
+<h3>How the config gets generated: wrap the stock template, don't copy it</h3>
+<p>The manual kit ships a full copy of the stock template, so it must be re-diffed after every plugin upgrade.
+OPNsense's template engine is plain Jinja2 with a <code>regex_replace</code> filter. It applies <code>+TARGETS.D/*.TARGET</code>
+in sorted order, and the last entry wins. The plugin can therefore <i>include</i> the stock template and patch only what it owns:</p>
+
+<figure>
+<svg class="dg" viewBox="0 0 1100 300" role="img" aria-label="Template composition">
+  <rect class="box" x="10" y="20" width="300" height="110" rx="6"/>
+  <text x="24" y="44" class="lbl" font-weight="700">config.xml</text>
+  <text x="24" y="66" class="small">OPNsense.dnscryptproxy.* (stock UI)</text>
+  <text x="24" y="84" class="small">listen, filters, cache, logs, static…</text>
+  <text x="24" y="108" class="small" style="fill:var(--accent)">OPNsense.dnscryptroutes.* (this plugin)</text>
+  <text x="24" y="124" class="small" style="fill:var(--accent)">enabled, resolvers, relays, routes, lb, ECS</text>
+
+  <rect class="box" x="10" y="170" width="300" height="90" rx="6"/>
+  <text x="24" y="194" class="lbl" font-weight="700">+TARGETS.D/95-dnscrypt-routes.TARGET</text>
+  <text x="24" y="216" class="small">dnscrypt-proxy-routes.toml →</text>
+  <text x="24" y="232" class="small">/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml</text>
+  <text x="24" y="250" class="small">(after 90-eu; defers to it while disabled)</text>
+
+  <rect class="box new" x="360" y="20" width="470" height="240" rx="6"/>
+  <text x="376" y="44" class="lbl" font-weight="700">dnscrypt-proxy-routes.toml (plugin template, about 40 lines)</text>
+  <rect class="box" x="380" y="60" width="430" height="44" rx="4"/>
+  <text x="392" y="80" class="lbl">① render stock template into a variable</text>
+  <text x="392" y="96" class="small">{% set stock %}{% include '…/Dnscryptproxy/dnscrypt-proxy.toml' %}{% endset %}</text>
+  <rect class="box" x="380" y="114" width="430" height="44" rx="4"/>
+  <text x="392" y="134" class="lbl">② if disabled: emit manual override or stock</text>
+  <text x="392" y="150" class="small">plugin installed but off = as if not installed</text>
+  <rect class="box" x="380" y="168" width="430" height="80" rx="4"/>
+  <text x="392" y="188" class="lbl">③ if enabled: strip + inject</text>
+  <text x="392" y="206" class="small">strip stock server_names and anonymized_dns routes (regex_replace)</text>
+  <text x="392" y="222" class="small">prepend server_names, lb_strategy, edns_client_subnet</text>
+  <text x="392" y="238" class="small">inject routes, skip_incompatible, direct_cert_fallback</text>
+
+  <rect class="box" x="880" y="100" width="210" height="80" rx="6"/>
+  <text x="894" y="126" class="lbl" font-weight="700">dnscrypt-proxy.toml</text>
+  <text x="894" y="146" class="small">stock settings preserved,</text>
+  <text x="894" y="162" class="small">routing owned by the plugin</text>
+
+  <path class="arrow" d="M310,75 H356"/>
+  <path class="arrow" d="M310,215 H356"/>
+  <path class="arrow" d="M830,140 H876"/>
+</svg>
+<figcaption><b>Figure 3 · Template composition.</b> Stock fixes and new options flow through automatically, and a disabled plugin is a no-op.
+Package removal deletes the template and its mapping together, so no mapping is left dangling and no removal hook is needed.
+Render tests against <code>reference/stock-template.toml</code> guard the two regexes.</figcaption>
+</figure>
+
+<h3>Coexistence with the manual override</h3>
+<p>The manual kit's <code>90-eu.TARGET</code> and the plugin's <code>95-dnscrypt-routes.TARGET</code> both map onto <code>dnscrypt-proxy.toml</code>, and 95 wins.
+So that installing the plugin never changes a working router, the disabled branch defers to the manual template while its mapping is active:</p>
+<table class="t">
+  <tr><th>State</th><th>What generates <code>dnscrypt-proxy.toml</code></th></tr>
+  <tr><td>Plugin not installed</td><td>Manual override if present, otherwise stock</td></tr>
+  <tr><td>Installed, routing disabled</td><td>Same as not installed: the template includes the manual template only while its <code>90-eu.TARGET</code> mapping is active, otherwise stock</td></tr>
+  <tr><td>Installed, routing enabled</td><td>Plugin routing (wraps the stock template). The manual override is shadowed, and a notice says so.</td></tr>
+  <tr><td>Uninstalled</td><td>Manual override if still present, otherwise stock</td></tr>
+</table>
+<p>To migrate from the manual override without a gap, install the plugin, enable it and Save &amp; Apply, then remove the manual kit files.
+Removing the manual kit while the plugin is disabled returns to stock.</p>
+
+<h3>Plugin layout after revision</h3>
+<pre>plugin/dns/dnscrypt-routes/                (was dnscrypt-eu)
+  Makefile, pkg-descr                         (no +PRE/+POST hooks)
+  src/opnsense/mvc/app/
+    models/OPNsense/DnscryptRoutes/
+      DnscryptRoutes.xml        general{enabled, lbStrategy, skipIncompatible, directCertFallback, ecsEnabled=0, ecsSubnet=146.70.82.0/24}
+                            relays.relay[]{name, operator}
+                            resolvers.resolver[]{enabled, name, operator, relays → ModelRelationField(relays)}
+      DnscryptRoutes.php        performValidation() + validateRouting(catalog): the R-06 rules
+      preset.json           canonical preset data (C-01), read by the migration
+      Migrations/M1_0_0.php seed preset.json (enabled = off)
+      Menu/Menu.xml         Services → DNSCrypt-Proxy → Anonymized Routing
+      ACL/ACL.xml           one page ACL
+    controllers/OPNsense/DnscryptRoutes/
+      IndexController.php
+      Api/SettingsController.php   standard get/set + grid CRUD for relays/resolvers
+      Api/ServiceController.php    reconfigure (= stock template reload + restart), status, test start/poll
+      Api/CatalogController.php    resolver/relay names from the signed cached catalogs
+      forms/{general,dialogRelay,dialogResolver}.xml
+    views/OPNsense/DnscryptRoutes/index.volt   one page (see mockup)
+  src/opnsense/service/
+    templates/OPNsense/Dnscryptproxy/dnscrypt-proxy-routes.toml
+    templates/OPNsense/Dnscryptproxy/+TARGETS.D/95-dnscrypt-routes.TARGET
+    conf/actions.d/actions_dnscryptroutes.conf  status · catalog · mark-applied · test-start · test-status
+  src/opnsense/scripts/dnscrypt_routes/
+    catalog.py   parse public-resolvers.md / relays.md (name, country, description, operator guess)
+    status.py    service + "live servers" from log, active 90-eu mapping (same test as R-01), pending-changes flag
+    testrun.py   side-instance test (section 5)</pre>
+
+<h2>4. Resolvers, relays and the operator rule</h2>
+<p>Each resolver and each relay carries an <b>operator</b> tag. When you add an entry from the catalog the tag is pre-filled from a
+name heuristic (strip <code>anon-</code>, take the first label, plus a small alias table such as <code>cs</code> → <code>cryptostorm</code>).
+You can always edit it. Routes are stored per resolver as references to relay rows, so renaming a relay never breaks a route.</p>
+
+<div class="grid2">
+<figure style="margin-top:0">
+<svg class="dg" viewBox="0 0 520 300" role="img" aria-label="Operator rule example">
+  <text x="10" y="18" class="head">RESOLVERS</text><text x="350" y="18" class="head">RELAYS</text>
+  <rect class="opsw" x="10" y="34"  width="170" height="34" rx="17"/><text x="95" y="56" text-anchor="middle" class="lbl">scaleway-ams</text>
+  <rect class="opcs" x="10" y="94"  width="170" height="34" rx="17"/><text x="95" y="116" text-anchor="middle" class="lbl">cs-de</text>
+  <rect class="opot" x="10" y="154" width="170" height="34" rx="17"/><text x="95" y="176" text-anchor="middle" class="lbl">nwps.fi</text>
+  <rect class="opcs" x="340" y="34"  width="170" height="34" rx="17"/><text x="425" y="56" text-anchor="middle" class="lbl">anon-cs-de</text>
+  <rect class="opcs" x="340" y="94"  width="170" height="34" rx="17"/><text x="425" y="116" text-anchor="middle" class="lbl">anon-cs-fr</text>
+  <rect class="opsw" x="340" y="154" width="170" height="34" rx="17"/><text x="425" y="176" text-anchor="middle" class="lbl">anon-scaleway-ams</text>
+  <path class="ok" d="M180,51 C260,51 260,51 340,51"/>
+  <path class="ok" d="M180,51 C260,60 260,105 340,111"/>
+  <path class="ok" d="M180,111 C260,120 260,165 340,171"/>
+  <path class="no" d="M180,111 C250,111 270,60 340,55"/>
+  <line class="x" x1="252" y1="72" x2="268" y2="88"/><line class="x" x1="268" y1="72" x2="252" y2="88"/>
+  <path class="ok" d="M180,171 C260,171 260,60 340,55"/>
+  <path class="ok" d="M180,171 C260,175 260,171 340,175"/>
+  <rect class="opcs" x="10" y="226" width="16" height="12" rx="6"/><text x="32" y="236" class="small">cryptostorm</text>
+  <rect class="opsw" x="120" y="226" width="16" height="12" rx="6"/><text x="142" y="236" class="small">scaleway</text>
+  <rect class="opot" x="220" y="226" width="16" height="12" rx="6"/><text x="242" y="236" class="small">other operators</text>
+  <line class="ok" x1="10" y1="262" x2="40" y2="262"/><text x="48" y="266" class="small">allowed route</text>
+  <line class="no" x1="160" y1="262" x2="190" y2="262"/><text x="198" y="266" class="small">refused on save: same operator</text>
+</svg>
+<figcaption><b>Figure 4 · The rule.</b> <code>cs-de</code> may not route through <code>anon-cs-*</code>.
+Independent operators may use any relay.</figcaption>
+</figure>
+<div>
+  <h3 style="margin-top:0">Validation on save</h3>
+  <p>The invariant (R-21): while enabled and <code>skip_incompatible</code> is on, every query goes through a relay or fails.
+  dnscrypt-proxy goes direct in several cases: an empty <code>server_names</code> means "all servers", a DNSCrypt server without a route is used directly,
+  and DoH servers ignore routes entirely (upstream <code>fetchDoHServerInfo</code> never calls <code>route()</code>). So only DNSCrypt resolvers with relays are accepted,
+  every write endpoint re-checks the full rule set, and the template fails closed if a broken config gets through anyway (R-03).
+  The template also forces <code>doh_servers</code> and <code>odoh_servers</code> off (R-02). dnscrypt-proxy applies that protocol filter even to explicitly named servers,
+  so a resolver that later turns into DoH in the catalog is dropped rather than used directly.</p>
+  <table class="t">
+    <tr><th>Rule</th><th>Effect</th></tr>
+    <tr><td>Relay operator = resolver operator</td><td><span class="tag del">block</span> In the UI the matrix cell is locked; the server-side model validation enforces it.</td></tr>
+    <tr><td>Enabled resolver with 0 relays, or a relay reference that no longer exists</td><td><span class="tag del">block</span> It would otherwise be queried <i>directly</i>, which defeats anonymization.</td></tr>
+    <tr><td>Routing enabled with no enabled resolver</td><td><span class="tag del">block</span> An empty <code>server_names</code> makes dnscrypt-proxy use every catalog server, unrouted.</td></tr>
+    <tr><td>Enabled resolver not listed as DNSCrypt in the catalog (DoH, ODoH or unknown)</td><td><span class="tag del">block</span> DoH ignores routes and would be queried directly.</td></tr>
+    <tr><td>Enabling while the catalog is unavailable</td><td><span class="tag del">block</span> "Start DNSCrypt-Proxy once so it downloads the signed resolver list."</td></tr>
+    <tr><td>Enabled stock static server with the same name as an enabled resolver</td><td><span class="tag del">block</span> The static entry would replace the catalog entry and its protocol.</td></tr>
+    <tr><td>Relay name equals resolver name without <code>anon-</code></td><td><span class="tag del">block</span> Same server, even with a mistyped operator tag.</td></tr>
+    <tr><td>Operator tag empty</td><td><span class="tag del">block</span> The rule cannot be evaluated without it.</td></tr>
+    <tr><td>Deleting a relay still used by a resolver; disabling or deleting the last enabled resolver</td><td><span class="tag del">block</span> The grid delete and edit endpoints refuse instead of leaving a broken route.</td></tr>
+    <tr><td>Resolver with exactly 1 relay</td><td><span class="tag rew">warn</span> No relay failover.</td></tr>
+    <tr><td>Relay name not in the cached catalog</td><td><span class="tag rew">warn</span> The name may be retired or mistyped. dnscrypt-proxy skips a route with an unknown relay, so it fails closed. The check is skipped if no catalog is cached yet.</td></tr>
+    <tr><td><code>skip_incompatible</code> off</td><td><span class="tag rew">warn</span> A resolver that can't be reached through its relays is then queried directly. The status strip shows a red notice while it is off.</td></tr>
+    <tr><td>ECS enabled with a subnet other than the synthetic preset</td><td><span class="tag rew">warn</span> It may reveal your real network. Saving is still allowed.</td></tr>
+    <tr><td>Stock "Server list"/"Relay list" not empty</td><td><span class="tag rew">notice</span> They are overridden while this plugin is enabled, as are the stock DNSCrypt/DoH/ODoH protocol settings.</td></tr>
+    <tr><td>Manual <code>90-eu</code> override active (its mapping points the manual template at <code>dnscrypt-proxy.toml</code>, R-01)</td><td><span class="tag rew">notice</span> It is shadowed while routing is enabled. While routing is disabled, or after uninstalling, it applies again.</td></tr>
+    <tr><td>Manual template present without its <code>90-eu</code> mapping</td><td><span class="tag rew">notice</span> A leftover file only. It has no effect: without the mapping, a disabled plugin emits stock, as it would without the plugin.</td></tr>
+  </table>
+</div>
+</div>
+
+<h2>5. The UI</h2>
+<p>One page, added to the existing <i>Services → DNSCrypt-Proxy</i> menu group. It uses standard OPNsense building blocks: a settings form,
+bootgrid tables with edit dialogs, the service status/restart widget and a custom route-matrix table.
+The top-level <i>About</i> and <i>Status</i> tabs go away. Help text lives next to each field, and a status strip replaces the evidence tables.</p>
+
+<figure>
+<div class="mock" role="img" aria-label="Mockup of the proposed OPNsense page">
+  <div class="hdr"><div class="logo"><b>OPN</b>sense</div><div class="r">root@router.lan &nbsp;⏻</div></div>
+  <div class="wrap">
+    <nav>
+      <div class="g">Lobby</div><div class="g">Reporting</div><div class="g">System</div><div class="g">Interfaces</div><div class="g">Firewall</div>
+      <div class="g">Services</div><div class="s1">DHCP</div><div class="s1" style="color:#fff">DNSCrypt-Proxy</div>
+      <div class="s2">Configuration</div><div class="on">Anonymized Routing</div><div class="s2">Log / General</div><div class="s2">Log / Queries</div>
+      <div class="s1">Unbound DNS</div><div class="s1">Network Time</div><div class="g">VPN</div><div class="g">Power</div><div class="g">Help</div>
+    </nav>
+    <main>
+      <div class="crumbs">Services <span>/</span> DNSCrypt-Proxy <span>/</span> Anonymized Routing
+        <div class="svc"><span class="pill">dnscrypt-proxy running</span><span class="ico">↻</span><span class="ico">■</span></div></div>
+
+      <div class="status">
+        <div class="tile"><div class="k">Policy</div><div class="v"><span class="dot" style="background:var(--m-ok)"></span>Applied</div></div>
+        <div class="tile"><div class="k">Live servers (log)</div><div class="v">5 / 5</div></div>
+        <div class="tile"><div class="k">Last applied</div><div class="v">2026-10-12 14:02</div></div>
+        <div class="tile"><div class="k">Pending</div><div class="v"><span class="dot" style="background:var(--m-warn)"></span>Saved, not applied</div></div>
+      </div>
+
+      <div class="cols">
+        <div class="bx"><h4>General</h4>
+          <table class="form">
+            <tr><td>Enable anonymized routing<span class="h">Overrides the server/relay lists on the Configuration page</span></td><td><span class="chk on"></span></td></tr>
+            <tr><td>Load balancing<span class="h">lb_strategy</span></td><td><span class="sel">wp2 — best of two random ▾</span></td></tr>
+            <tr><td>Skip incompatible routes<span class="h">skip_incompatible · turning it off allows direct queries</span></td><td><span class="chk on"></span></td></tr>
+            <tr><td>Direct certificate fallback<span class="h">Certificate fetch only, never user queries</span></td><td><span class="chk on"></span></td></tr>
+            <tr><td>ECS subnet hint<span class="h">Off by default. Any subnet allowed; the preset is synthetic, never use your WAN</span></td><td><span class="chk"></span>&nbsp;<span class="inp dis">146.70.82.0/24</span></td></tr>
+          </table>
+        </div>
+        <div class="bx"><h4>Relays <small>from the signed relays.md catalog</small></h4>
+          <table>
+            <tr><th>Relay</th><th>Operator</th><th></th></tr>
+            <tr><td>anon-cs-de <span class="cc">DE</span></td><td><span class="op cs">cryptostorm</span></td><td class="ac">✎ 🗑</td></tr>
+            <tr><td>anon-cs-fr <span class="cc">FR</span></td><td><span class="op cs">cryptostorm</span></td><td class="ac">✎ 🗑</td></tr>
+            <tr><td>anon-scaleway-ams <span class="cc">NL</span></td><td><span class="op sw">scaleway</span></td><td class="ac">✎ 🗑</td></tr>
+            <tr><td>anon-scaleway <span class="cc">FR</span></td><td><span class="op sw">scaleway</span></td><td class="ac">✎ 🗑</td></tr>
+          </table>
+          <div class="add">＋ Add relay</div>
+        </div>
+      </div>
+
+      <div class="bx"><h4>Resolvers and routes <small>Tick the relays each resolver may use.<br>A resolver can never use a relay run by its own operator.</small></h4>
+        <div style="overflow-x:auto">
+        <table class="mx">
+          <tr><th>On</th><th>Resolver</th><th>Operator</th>
+            <th class="rel">anon-cs-de<br><span class="op cs">cryptostorm</span></th><th class="rel">anon-cs-fr<br><span class="op cs">cryptostorm</span></th>
+            <th class="rel">anon-scaleway-ams<br><span class="op sw">scaleway</span></th><th class="rel">anon-scaleway<br><span class="op sw">scaleway</span></th>
+            <th>Routes</th><th></th></tr>
+          <tr><td><span class="chk on"></span></td><td>scaleway-ams <span class="cc">NL</span></td><td><span class="op sw">scaleway</span></td>
+            <td class="c"><span class="chk on"></span></td><td class="c"><span class="chk on"></span></td><td class="c lock">🔒 same operator</td><td class="c lock">🔒 same operator</td><td class="cnt">2</td><td class="ac">✎ 🗑</td></tr>
+          <tr><td><span class="chk on"></span></td><td>cs-de <span class="cc">DE</span></td><td><span class="op cs">cryptostorm</span></td>
+            <td class="c lock">🔒 same operator</td><td class="c lock">🔒 same operator</td><td class="c"><span class="chk on"></span></td><td class="c"><span class="chk on"></span></td><td class="cnt">2</td><td class="ac">✎ 🗑</td></tr>
+          <tr><td><span class="chk on"></span></td><td>nwps.fi <span class="cc">FI</span></td><td><span class="op ot">nwps</span></td>
+            <td class="c"><span class="chk on"></span></td><td class="c"><span class="chk"></span></td><td class="c"><span class="chk on"></span></td><td class="c"><span class="chk"></span></td><td class="cnt">2</td><td class="ac">✎ 🗑</td></tr>
+          <tr><td><span class="chk on"></span></td><td>dorriere-fr <span class="cc">FR</span></td><td><span class="op ot">dorriere</span></td>
+            <td class="c"><span class="chk on"></span></td><td class="c"><span class="chk"></span></td><td class="c"><span class="chk on"></span></td><td class="c"><span class="chk"></span></td><td class="cnt">2</td><td class="ac">✎ 🗑</td></tr>
+          <tr><td><span class="chk on"></span></td><td>dnscry.pt-nuremberg-ipv4 <span class="cc">DE</span></td><td><span class="op ot">dnscry.pt</span></td>
+            <td class="c"><span class="chk on"></span></td><td class="c"><span class="chk"></span></td><td class="c"><span class="chk"></span></td><td class="c"><span class="chk"></span></td><td class="cnt low">1 ⚠</td><td class="ac">✎ 🗑</td></tr>
+        </table>
+        </div>
+        <div class="alert">⚠ <b>dnscry.pt-nuremberg-ipv4</b> has a single relay. It is allowed but has no failover. A resolver with no relay cannot be saved.</div>
+        <div class="add">＋ Add resolver (searchable, from the signed public-resolvers.md catalog)</div>
+        <div class="lg"><span><span class="chk on"></span>&nbsp; route used</span><span><span class="chk"></span>&nbsp; allowed, unused</span><span><span class="sw8"></span>blocked: same operator</span></div>
+      </div>
+
+      <div class="acts">
+        <span class="btn pri">Save &amp; Apply</span><span class="btn">Save &amp; Test</span>
+        <span class="n">Apply restarts dnscrypt-proxy (about 60 s). Test is optional: it runs a temporary copy on 127.0.0.1:5354 and leaves live DNS alone.</span>
+      </div>
+
+      <div class="bx"><h4>Last test: candidate configuration <small>2026-10-12 13:58 · 74 s · temporary instance stopped</small></h4>
+        <table>
+          <tr><th>Resolver</th><th>Route seen in log</th><th>Certificate</th><th>RTT</th><th>Result</th></tr>
+          <tr><td>scaleway-ams</td><td>via anon-cs-de, anon-cs-fr</td><td>OK (DNSCrypt)</td><td>41 ms</td><td class="okc">✔ pass</td></tr>
+          <tr><td>cs-de</td><td>via anon-scaleway-ams, anon-scaleway</td><td>OK (DNSCrypt)</td><td>38 ms</td><td class="okc">✔ pass</td></tr>
+          <tr><td>nwps.fi</td><td>via anon-cs-de, anon-scaleway-ams</td><td>OK (DNSCrypt)</td><td>67 ms</td><td class="okc">✔ pass</td></tr>
+          <tr><td>dorriere-fr</td><td>via anon-cs-de, anon-scaleway-ams</td><td>OK (DNSCrypt)</td><td>52 ms</td><td class="okc">✔ pass</td></tr>
+          <tr><td>dnscry.pt-nuremberg-ipv4</td><td>via anon-cs-de</td><td>timeout</td><td>—</td><td class="badc">✖ no answer in 90 s</td></tr>
+          <tr><td colspan="5" style="color:var(--m-muted)">Test queries via 127.0.0.1:5354: example.com A NOERROR · opnsense.org A NOERROR · dnscrypt.info A NOERROR</td></tr>
+        </table>
+      </div>
+    </main>
+  </div>
+</div>
+<figcaption><b>Figure 5 · Proposed page (mockup, sample data).</b> The route matrix is the guided part: cells that break the
+operator rule are locked before you ever hit Save, and the server re-checks on save. Columns follow the relay list, so adding a relay adds a column.
+The test panel appears only after a test has run.
+The <code>dnscry.pt-nuremberg-ipv4</code> row deliberately shows one relay to illustrate the single-relay warning; the seeded preset gives it two (C-01 Preset).</figcaption>
+</figure>
+
+<h3>Interaction details</h3>
+<ul>
+  <li><b>Save &amp; Apply</b> (primary) saves, validates, regenerates the config through the stock <code>OPNsense/Dnscryptproxy</code> template set and restarts the service once. The button shows a spinner while the restart runs (about 60 s), then refreshes the status strip.</li>
+  <li><b>Save &amp; Test</b> (secondary) saves without applying and starts the background test. The page polls for the result. When the test finishes, an <b>Apply</b> button appears in the test panel.</li>
+  <li>A <b>"Saved, not applied"</b> state is shown when the config differs from the last applied hash. This is the normal OPNsense pending-changes pattern.</li>
+  <li>No confirmation dialogs, except the browser's standard "unsaved changes" prompt.</li>
+  <li>Adding a resolver or relay opens a dialog with a searchable catalog picker that shows name, country and description. The operator tag is pre-filled and editable.</li>
+</ul>
+
+<h2>6. Apply and the optional test</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Apply (default path)</h3>
+    <ol>
+      <li><code>settings/set</code> runs the full rule set (R-06), including the operator rule.</li>
+      <li><code>service/reconfigure</code> uses <code>ApiMutableServiceControllerBase</code> with template <code>OPNsense/Dnscryptproxy</code> and service <code>dnscryptproxy</code>, exactly like the stock plugin.</li>
+      <li>Store the applied config hash and time, then re-read status.</li>
+    </ol>
+    <p class="muted">There is no adoption, journal, lock or backup step. Rollback means editing the settings back, or unticking Enable, and applying again.</p>
+  </div>
+  <div class="card">
+    <h3>Test (optional path, <code>testrun.py</code>)</h3>
+    <ol>
+      <li>Set one deadline for the whole run (90 s total). Every step below checks it; when it passes, the run ends as <code>failed</code> with <code>timeout</code>.</li>
+      <li>Render the saved config with OPNsense's own <code>Template(target_root_directory=/var/run/dnscrypt-routes/test)</code>, so the result is the same output Apply would produce.</li>
+      <li>Patch the copy: listen on <code>127.0.0.1:5354</code>, use a temp log file, turn query logs off and use local copies of the signed catalogs.</li>
+      <li>Run <code>dnscrypt-proxy -check</code>, then start the instance. Wait for <code>live servers</code> until the deadline.</li>
+      <li>Send 3 test queries with <code>drill -p 5354</code>. Parse per-resolver <code>OK (DNSCrypt)</code>, RTT and route lines.</li>
+      <li>In <code>finally</code> (also on timeout and crash): stop the instance, write the result JSON and delete the temp directory.</li>
+    </ol>
+    <p class="muted">Only one test runs at a time; a second start is refused (<code>test-start</code> returns reason <code>already-running</code>, C-02) without touching the running test's result. For tests only, the binary path and the deadline can be overridden with <code>DNSCRYPT_ROUTES_TEST_BINARY</code> and <code>DNSCRYPT_ROUTES_TEST_DEADLINE</code> (C-06).</p>
+    <p class="muted">Disclosed in the UI: the test makes real outbound queries to the selected resolvers and relays.</p>
+  </div>
+</div>
+
+<h2>7. Test VM: fully scripted lifecycle</h2>
+<p>This keeps the current approach: an amd64 OPNsense guest in the pinned <code>qemux/qemu</code> container on OrbStack, with TCG emulation,
+QEMU user NAT and SSH/HTTPS forwarded to <code>127.0.0.1</code> only. The manual steps recorded in the review notes become one entry point, <code>test-vm/vm</code>, driven by
+<code>test-vm/vm.env</code>, which holds the version, ports, subnet, ISO/image checksum and credentials for the throw-away guest.</p>
+
+<figure>
+<svg class="dg" viewBox="0 0 1100 230" role="img" aria-label="Test VM lifecycle">
+  <rect class="box new" x="10"  y="60" width="140" height="70" rx="6"/><text x="80"  y="88" text-anchor="middle" class="lbl" font-weight="700">vm create</text><text x="80" y="108" text-anchor="middle" class="small">verify image, disk,</text><text x="80" y="122" text-anchor="middle" class="small">compose up, NAT</text>
+  <rect class="box new" x="190" y="60" width="150" height="70" rx="6"/><text x="265" y="88" text-anchor="middle" class="lbl" font-weight="700">vm provision</text><text x="265" y="108" text-anchor="middle" class="small">seed config.xml, SSH,</text><text x="265" y="122" text-anchor="middle" class="small">os-dnscrypt-proxy, Unbound</text>
+  <rect class="box new" x="380" y="60" width="150" height="70" rx="6"/><text x="455" y="88" text-anchor="middle" class="lbl" font-weight="700">vm deploy</text><text x="455" y="108" text-anchor="middle" class="small">rsync source, build pkg</text><text x="455" y="122" text-anchor="middle" class="small">in guest, install</text>
+  <rect class="box new" x="570" y="60" width="140" height="70" rx="6"/><text x="640" y="88" text-anchor="middle" class="lbl" font-weight="700">vm test</text><text x="640" y="108" text-anchor="middle" class="small">API Save&amp;Apply,</text><text x="640" y="122" text-anchor="middle" class="small">drill via Unbound</text>
+  <rect class="box new" x="750" y="60" width="150" height="70" rx="6"/><text x="825" y="88" text-anchor="middle" class="lbl" font-weight="700">vm export</text><text x="825" y="108" text-anchor="middle" class="small">config backup →</text><text x="825" y="122" text-anchor="middle" class="small">test-vm/snapshots/DATE</text>
+  <rect class="box old" x="940" y="60" width="150" height="70" rx="6"/><text x="1015" y="88" text-anchor="middle" class="lbl" font-weight="700">vm destroy</text><text x="1015" y="108" text-anchor="middle" class="small">compose down,</text><text x="1015" y="122" text-anchor="middle" class="small">delete $VM_STATE_DIR/disk/</text>
+  <path class="arrow" d="M150,95 H186"/><path class="arrow" d="M340,95 H376"/><path class="arrow" d="M530,95 H566"/><path class="arrow" d="M710,95 H746"/><path class="arrow" d="M900,95 H936"/>
+  <rect class="box opt" x="380" y="160" width="330" height="50" rx="6"/><text x="545" y="182" text-anchor="middle" class="lbl" font-weight="700">vm update</text><text x="545" y="199" text-anchor="middle" class="small">opnsense-update + pkg upgrade, then redeploy + retest</text>
+  <path class="arrow opt" d="M640,130 V156"/><path class="arrow opt" d="M455,160 V134"/>
+  <text x="10" y="30" class="small">Also: vm reset (post-provision snapshot) · vm ssh · vm console (VNC) · vm status · vm restore SNAPSHOT (config import only, e.g. test-vm/snapshots/DATE)</text>
+</svg>
+<figcaption><b>Figure 6 · Test VM lifecycle.</b> Each step is idempotent and re-runnable. <code>vm destroy</code> removes the container and <code>$VM_STATE_DIR/disk/</code> but keeps the image cache and the golden image; <code>vm destroy --all</code> also removes the whole state directory (with <code>--yes</code> if a golden image exists). <code>vm restore</code> imports configuration only. Committed snapshots stay.</figcaption>
+</figure>
+
+<ul>
+  <li><b>Unattended install:</b> the DVD installer is an interactive TUI. The plan is to switch to the official <b>nano</b> image (pre-installed, serial console) and seed
+  <code>config.xml</code> before first boot. Candidate mechanisms are the boot-time importer reading from an attached MSDOS disk, or an <code>expect</code> script on the serial console. <i>This is a spike; see risks.</i></li>
+  <li><b>Provisioning</b> after first boot runs over SSH. It installs <code>os-dnscrypt-proxy</code> and applies the baseline (DNSCrypt on <code>127.0.0.1:5353</code>, Unbound forwarding, optional query logging) through <code>configctl</code>/API, not by hand-editing.</li>
+  <li><b>Build</b> happens inside the guest, because it is the only FreeBSD host: a pinned <code>opnsense/plugins</code> checkout and <code>make package</code>. This replaces <code>scripts/build-local.sh</code>.</li>
+  <li><b>Smoke tests</b> (<code>vm test</code>) cover install, Save &amp; Apply via the API, the generated TOML matching expectations, <code>drill</code> through Unbound, the side-instance test, disable → stock output, and uninstall → stock output.</li>
+</ul>
+
+<h2>8. Cleanup inventory</h2>
+<table class="t">
+  <tr><th>Path</th><th>Action</th><th>Notes</th></tr>
+  <tr><td><code>docs/reviews/*</code> (21 files)</td><td><span class="tag del">delete</span></td><td>Process records of the old design. History keeps them.</td></tr>
+  <tr><td><code>docs/superpowers/*</code></td><td><span class="tag del">delete</span></td><td>Superseded by this plan.</td></tr>
+  <tr><td><code>docs/plugin-build-and-install.md</code> (884 lines)</td><td><span class="tag rew">rewrite</span></td><td>Becomes <code>docs/plugin.md</code>, about 120 lines: install, use, build via <code>test-vm/vm deploy</code>, uninstall.</td></tr>
+  <tr><td><code>docs/disposable-vm-proposal.md</code></td><td><span class="tag rew">replace</span></td><td>Becomes <code>test-vm/README.md</code>, the usage of the <code>vm</code> script.</td></tr>
+  <tr><td><code>docs/restore.md</code>, <code>docs/maintenance-and-rollback.md</code></td><td><span class="tag rew">merge</span></td><td>Become one <code>docs/manual-override.md</code> for the manual kit, including the precedence rule and the gap-free migration order to the plugin (§3).</td></tr>
+  <tr><td><code>README.md</code></td><td><span class="tag rew">rewrite</span></td><td>About 80 lines: what it is, the two ways to deploy, the route table, caveats and sources.</td></tr>
+  <tr><td><code>artifacts/</code>, <code>reference/</code></td><td><span class="tag keep">keep</span></td><td>Manual kit and upgrade-diff baseline. <code>reference/stock-template.toml</code> also feeds the render tests.</td></tr>
+  <tr><td><code>plugin/.../scripts/dnscrypt_eu/*</code> (12 files)</td><td><span class="tag del">delete</span></td><td>Replaced by <code>catalog.py</code>, <code>status.py</code> and <code>testrun.py</code>.</td></tr>
+  <tr><td><code>plugin/.../+PRE_*/+POST_*</code> hooks</td><td><span class="tag del">delete</span></td><td>Not needed: install is inert because the plugin starts disabled.</td></tr>
+  <tr><td><code>plugin/.../share/dnscrypt-eu/*</code></td><td><span class="tag del">delete</span></td><td>Profile and policy live in the model and migration. The compatibility allowlist is dropped. <code>LICENSES</code> moves if still needed.</td></tr>
+  <tr><td><code>plugin/.../templates/OPNsense/DnscryptEU/*</code></td><td><span class="tag del">delete</span></td><td>The settings bridge is no longer needed.</td></tr>
+  <tr><td><code>plugin/.../mvc/*</code></td><td><span class="tag rew">rewrite</span></td><td>New model, forms, controllers and a single view. <code>GuideController</code>/<code>guide.volt</code> are deleted.</td></tr>
+  <tr><td><code>tests/*</code> (≈6,100 lines)</td><td><span class="tag rew">rewrite</span></td><td>A few focused tests: template render (on/off, ECS, routes, strip regexes vs reference stock), validation rules, catalog parser and test-log parser. Python plus jinja2 only.</td></tr>
+  <tr><td><code>tests/integration/*</code></td><td><span class="tag rew">replace</span></td><td>Becomes <code>test-vm/vm test</code> smoke tests.</td></tr>
+  <tr><td><code>scripts/build-local.sh</code>, <code>tools/disposable-vm/</code></td><td><span class="tag rew">move</span></td><td>Moves into <code>test-vm/</code> (<code>vm</code>, <code>compose.yaml</code>, <code>vm.env</code>, <code>lib/</code>).</td></tr>
+  <tr><td><code>test-vm/restore/2026-10-11/</code></td><td><span class="tag keep">keep</span></td><td>Historical snapshot, kept byte-identical. <code>vm restore</code> imports its configuration only; a working historical setup also needs the old package and companion files (see its README). New exports go to <code>test-vm/snapshots/</code>.</td></tr>
+</table>
+
+<h2 id="requirements">9. Requirements</h2>
+<p>Numbered requirements are the contract between this plan and the work packets. Each packet lists the <code>R-xx</code> it satisfies, and reviewers check against them.
+Sections 1–8 explain the reasons; this table is the testable summary.</p>
+<table class="t">
+  <tr><th style="width:8%">ID</th><th>Requirement</th><th style="width:10%">Source</th></tr>
+  <tr><td>R-01</td><td>The plugin template includes the stock template. When the plugin is disabled, the output is byte-identical to what would be generated without the plugin: the manual override's template if its <code>90-eu.TARGET</code> mapping is active, otherwise the stock template. The template checks the mapping itself: it includes the <code>.TARGET</code> file with <code>ignore missing</code> and tests that it maps <code>dnscrypt-proxy-eu.toml</code> onto <code>dnscrypt-proxy.toml</code>. A manual template file without its mapping is ignored. When the base service is disabled, the output is empty, as with stock.</td><td>§3</td></tr>
+  <tr><td>R-02</td><td>When enabled, the stock <code>server_names</code> and routes are removed, and these owned keys are injected: <code>server_names</code> (enabled resolvers), <code>lb_strategy</code>, <code>edns_client_subnet</code> (only when ECS is on), one route per resolver, <code>skip_incompatible</code> and <code>direct_cert_fallback</code>.
+    The protocol filters are forced to <code>dnscrypt_servers = true</code>, <code>doh_servers = false</code> and <code>odoh_servers = false</code>, whatever the stock UI sets: the stock lines (always emitted) are replaced in place. If one of them is missing, the output fails closed (R-03). The result is valid TOML.</td><td>§3, §4</td></tr>
+  <tr><td>R-03</td><td>Stripping removes a stock <code>server_names</code> line and a stock <code>routes</code> block if they are present. Their absence is normal: stock emits neither while its lists are empty.
+    The injection needs the <code>[anonymized_dns]</code> anchor and the three stock protocol lines (R-02). If one of them is missing (the stock template changed), the output fails closed like below, with the <code>override-not-applied</code> marker (C-06) instead, and the status strip reports it.
+    Fail closed: if the model breaks the invariant at render time (no enabled resolver, an enabled resolver without relays, a dangling relay reference), the output is the stock-rendered file with <code>server_names = ['dnscrypt-routes-invalid-config']</code> injected, no routes, and the <code>invariant-violated</code> marker (C-06). DNS stops instead of going direct. Protocol checks can't be done in the template; R-06 and the runtime check (R-10, R-13) cover them.</td><td>§3, §4, §12</td></tr>
+  <tr><td>R-04</td><td>The package ships the template and the <code>95-dnscrypt-routes.TARGET</code> mapping, with no install or deinstall hooks. Uninstalling returns generation to the mappings that remain: the manual <code>90-eu</code> override if present, otherwise stock.</td><td>§3</td></tr>
+  <tr><td>R-05</td><td>The model follows C-01. A fresh install seeds the vetted preset, disabled. Its canonical source is <code>reference/effective-settings.json</code> (C-01 Preset); the seeded model is verified against it offline (<code>preset.json</code>) and on the VM.</td><td>§1, §4, C-01</td></tr>
+  <tr><td>R-06</td><td>Saving is blocked when a relay has the same operator as its resolver, an enabled resolver has no relays, a relay name equals <code>anon-</code> + the resolver name, or an operator is empty.
+    While enabled, saving is also blocked when there is no enabled resolver, an enabled resolver is not listed in the catalog as a DNSCrypt server (DoH, ODoH and unknown are refused), a referenced relay does not exist, or an enabled stock static server shares a name with an enabled resolver.
+    Enabling is refused while the catalog is unavailable, with the message "Start DNSCrypt-Proxy once so it downloads the signed resolver list."
+    Every write endpoint (<code>settings/set</code>, add/set/del for relays and resolvers, <code>reconfigure</code>) re-checks the full rule set and refuses instead of saving partially. Deleting a relay is refused while any resolver references it. Disabling or deleting the last enabled resolver is refused while routing is enabled.
+    Turning routing off (<code>enabled = 0</code>) is always allowed, so a missing catalog or a broken route can never lock the user out. While routing is enabled and the catalog is unavailable, only that change is accepted.</td><td>§4</td></tr>
+  <tr><td>R-07</td><td>Warnings, which don't block saving: a single relay, a relay name missing from the catalog, an ECS subnet other than the preset, non-empty stock lists, and <code>skip_incompatible</code> off. (A present <code>90-eu.TARGET</code> is a status notice, R-10, not a save warning.)</td><td>§4</td></tr>
+  <tr><td>R-08</td><td>ECS is off by default and the field is pre-filled with <code>146.70.82.0/24</code>. Any subnet is accepted.</td><td>§1</td></tr>
+  <tr><td>R-09</td><td>Save &amp; Apply is one action: save, then stock template reload and exactly one restart. There are no confirmation dialogs, and the applied hash and time are recorded.
+    "Exactly one restart" means exactly one new startup block in the dnscrypt-proxy log during the apply. A rejected Save &amp; Apply (validation failure) causes no restart and no change to the saved config or the generated file.</td><td>§5, §6</td></tr>
+  <tr><td>R-10</td><td>The status strip shows running state, live servers N/M, last applied, pending changes and notices.
+    Notices include: the manual <code>90-eu</code> override is shadowed (only while routing is enabled), and the manual template is present without its mapping.
+    Red alerts: the <code>invariant-violated</code> marker is present; "direct connection detected" when the dnscrypt-proxy log shows a live server without a relay route line; and "Relay-only routing not guaranteed: skip incompatible is off".</td><td>§4, §5</td></tr>
+  <tr><td>R-11</td><td>The catalog comes from the cached signed lists and includes an operator guess. Missing lists degrade gracefully, except that enabling is refused (R-06).</td><td>§4</td></tr>
+  <tr><td>R-12</td><td>One page under Services → DNSCrypt-Proxy → Anonymized Routing, as in Figure 5, including the route matrix with locked cells.</td><td>§5</td></tr>
+  <tr><td>R-13</td><td>Save &amp; Test runs a side instance on <code>127.0.0.1:5354</code> in a sandbox for at most 90 s and always stops it. It never writes the live config, log, cache or listener. It reports per resolver and offers Apply from the result. A resolver fails when its log shows no relay route (direct) or a non-DNSCrypt protocol (for example <code>OK (DoH)</code>).
+    The 90 s is a hard wall-clock limit for the whole run (render, <code>-check</code>, start, wait, queries), enforced by a single deadline. Exceeding it gives <code>state: failed</code> with <code>error: "timeout"</code>. Only one test runs at a time; a second start is refused.</td><td>§6</td></tr>
+  <tr><td>R-14</td><td>The UI discloses that the test sends real queries to the selected resolvers and relays.</td><td>§6</td></tr>
+  <tr><td>R-15</td><td>The test VM is fully scripted per C-07: localhost-only port forwards, idempotent commands, credentials committed. All worktrees share one VM state directory (<code>VM_STATE_DIR</code>) and its lock, and <code>vm reset</code> returns the VM to the post-provision baseline. <code>vm destroy</code> keeps reusable artifacts (image cache, golden image); <code>vm destroy --all</code> removes everything. <code>vm restore</code> promises configuration import only, not a working historical installation.</td><td>§7</td></tr>
+  <tr><td>R-16</td><td><code>vm test</code> smoke suite: install without a DNS restart, disabled equals stock, apply preset, validation vectors, side-test isolation, disable and uninstall.
+    Failure scenarios: rejected saves change nothing, exactly one restart, test isolation including cache and listeners, cleanup after a killed or timed-out test, concurrent test refused.</td><td>§7</td></tr>
+  <tr><td>R-17</td><td>The cleanup follows §8 in ordinary commits. History stays intact, and the tag <code>pre-revision</code> marks the starting point.</td><td>§8</td></tr>
+  <tr><td>R-18</td><td>Documentation: a README of about 80 lines, <code>docs/plugin.md</code>, <code>docs/manual-override.md</code> and <code>test-vm/README.md</code>.</td><td>§8</td></tr>
+  <tr><td>R-19</td><td>The manual kit (<code>artifacts/</code>, <code>reference/</code>) stays byte-identical.</td><td>§8</td></tr>
+  <tr><td>R-20</td><td>Offline tests run on macOS with only <code>python3</code> and <code>requirements-dev.txt</code> (no PHP). PHP is checked on the VM.</td><td>§11</td></tr>
+  <tr><td>R-21</td><td>Relay-only invariant: while enabled and <code>skip_incompatible</code> is on, every query goes through a relay or fails. Enforced at save time (R-06), on every write endpoint, by a fail-closed template (R-03) and by a runtime log check (R-10, R-13).
+    It also holds after later catalog updates, because only DNSCrypt servers can be used at all (forced protocol filters, R-02): a resolver that drifts to DoH or ODoH drops out instead of going direct. Every enabled resolver has a route, and an unknown relay makes its server unusable.
+    Stated limitation: this relies on dnscrypt-proxy 2.1.15 applying the protocol filter to servers named in <code>server_names</code> (<code>proxy.go</code>, <code>updateRegisteredServers</code>). An upstream change would be caught by the VM tests (WP-11) and the runtime log check, which remain as a backstop. <em>Note (2026-10-15, owner decision): the VM <code>drift</code> check and the scripted UI check were dropped from <code>vm test</code> to keep the test tooling lean; this backstop is now covered by the offline tests (<code>tests/test_status.py</code>, <code>tests/test_testrun.py</code>) and, on the device, by the <code>apply</code> and <code>failclosed</code> checks.</em></td><td>§4</td></tr>
+</table>
+
+<h2 id="contracts">10. Contracts between work packets</h2>
+<p>These interfaces are fixed up front so packets can be built in parallel. A change to a contract is a plan change: the coordinator records it and notifies the affected packets.</p>
+
+<h3>C-01 · Model</h3>
+<pre>mount //OPNsense/dnscryptroutes · class OPNsense\DnscryptRoutes\DnscryptRoutes · version 1.0.0
+general.enabled             BooleanField  default 0
+general.lbStrategy          OptionField   first | p2 | ph | random | wp2      default wp2
+general.skipIncompatible    BooleanField  default 1
+general.directCertFallback  BooleanField  default 1
+general.ecsEnabled          BooleanField  default 0
+general.ecsSubnet           NetworkField  default 146.70.82.0/24 (one network)
+relays.relay[]              name TextField (required, unique) · operator TextField (required)
+resolvers.resolver[]        enabled BooleanField (default 1) · name TextField (required, unique)
+                            operator TextField (required)
+                            relays ModelRelationField → relays.relay, Multiple=Y
+Template paths: OPNsense.dnscryptroutes.general.*, ….relays.relay, ….resolvers.resolver
+
+Preset (seeded on fresh install)
+routing        canonical source: reference/effective-settings.json
+               (server_names, anonymized_dns.routes, lb_strategy, skip_incompatible, direct_cert_fallback)
+operator tags  C-05 operator_guess of each resolver and relay name
+other values   the defaults above: enabled=0, ecsEnabled=0, ecsSubnet=146.70.82.0/24
+ECS            off is a deliberate difference from the reference (owner decision);
+               the reference's ECS subnet is reused as the pre-filled value
+data           models/OPNsense/DnscryptRoutes/preset.json; Migrations/M1_0_0.php seeds from it</pre>
+
+<h3>C-02 · configd actions (<code>configctl dnscryptroutes …</code>)</h3>
+<pre>status            → {"running": bool, "live_servers": int|null, "total_servers": int,
+                     "override": "applied"|"not-applied"|"invariant-violated"|"disabled"|"base-disabled",
+                     (first line of the generated file: managed → applied, override-not-applied → not-applied,
+                      invariant-violated → invariant-violated; plugin disabled → disabled;
+                      plugin enabled but base service disabled (empty file) → base-disabled)
+                     "direct_servers": [str],
+                     "manual_override_present": bool, "manual_template_without_mapping": bool,
+                     (both use the R-01 "mapping active" test, not file presence alone)
+                     "applied": {"hash": str, "time": str}|null}
+catalog           → C-05
+mark-applied HASH → {"ok": true}
+test-start        → {"started": bool, "reason": str|null}   (reason "already-running" when a test is active;
+                     a refused start never touches the running test's result file)
+test-status       → C-04</pre>
+
+<h3>C-03 · HTTP API (<code>/api/dnscryptroutes/…</code>)</h3>
+<pre>settings/get                     settings/set (POST)
+settings/searchRelay             settings/getRelay/{uuid}     addRelay · setRelay/{uuid} · delRelay/{uuid}    (POST)
+settings/searchResolver          settings/getResolver/{uuid}  addResolver · setResolver/{uuid} · delResolver/{uuid}
+service/reconfigure (POST)       service/status → C-02 status + {"pending": bool}
+service/testStart (POST)         service/testStatus → C-04
+catalog/get → C-05
+set response: {"result": "saved"|"failed", "validations": {path: msg}, "warnings": [{"path": str, "message": str}]}
+del response when refused: {"result": "failed", "validations": {path: msg}}   (same format as set)
+paths use the model prefix, e.g. dnscryptroutes.resolvers.resolver.&lt;uuid&gt;.relays
+pending = sha256(serialized model) ≠ applied.hash</pre>
+
+<h3>C-04 · Test result</h3>
+<pre>{"state": "idle"|"running"|"done"|"failed", "started": str|null, "finished": str|null,
+ "duration_s": number|null, "error": str|null,
+ "check": {"ok": bool, "output": str}, "live_servers": int|null,
+ "resolvers": [{"name": str, "routes": [str], "cert": "ok"|"timeout"|"error"|"unknown",
+                "rtt_ms": int|null, "proto": str, "direct": bool, "pass": bool}],
+ "queries": [{"name": str, "type": str, "rcode": str}]}
+error: null or one of "timeout", "check-failed", "crashed"</pre>
+
+<h3>C-05 · Catalog</h3>
+<pre>{"available": bool, "source_dir": str,
+ "resolvers": [{"name", "location", "description", "operator_guess", "proto": "dnscrypt"|"doh"|"odoh"|"other", "ipv6": bool}],
+ "relays":    [{"name", "location", "description", "operator_guess", "ipv6": bool}]}
+proto: decoded from the stamp's protocol byte; the source of truth for the R-06 DNSCrypt check
+operator_guess: strip "anon-", take text before the first "-", apply aliases {cs → cryptostorm, nwps.fi → nwps}, lowercase
+vectors: cs-de, anon-cs-fr → cryptostorm · scaleway-ams, anon-scaleway-ams, anon-scaleway → scaleway
+         nwps.fi → nwps · dorriere-fr → dorriere · dnscry.pt-nuremberg-ipv4 → dnscry.pt</pre>
+
+<h3>C-06 · Paths and markers</h3>
+<pre>template   /usr/local/opnsense/service/templates/OPNsense/Dnscryptproxy/dnscrypt-proxy-routes.toml
+mapping    …/OPNsense/Dnscryptproxy/+TARGETS.D/95-dnscrypt-routes.TARGET
+           content: dnscrypt-proxy-routes.toml:/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml
+markers    first line when enabled and applied:   # dnscrypt-routes: managed
+           first line when the [anonymized_dns] anchor is missing: # dnscrypt-routes: override-not-applied
+                                                  (fails closed: server_names = ['dnscrypt-routes-invalid-config'], no routes)
+           first line when the model breaks R-21: # dnscrypt-routes: invariant-violated
+                                                  (with server_names = ['dnscrypt-routes-invalid-config'], no routes)
+           plugin disabled: no marker, output = manual override if its 90-eu.TARGET mapping is active, otherwise stock (§3)
+scripts    /usr/local/opnsense/scripts/dnscrypt_routes/{catalog,status,testrun}.py
+state      /var/db/dnscrypt-routes/applied.json     {"hash": str, "time": ISO-8601}
+test       /var/run/dnscrypt-routes/test/ (sandbox) · /var/run/dnscrypt-routes/test-result.json · listen 127.0.0.1:5354
+           env (test hooks only): DNSCRYPT_ROUTES_TEST_BINARY (dnscrypt-proxy path) · DNSCRYPT_ROUTES_TEST_DEADLINE (seconds, default 90)</pre>
+
+<h3>C-07 · Test VM command line</h3>
+<pre>test-vm/vm &lt;cmd&gt; [args]  →  test-vm/lib/cmd-&lt;cmd&gt;.sh   (helpers: lib/common.sh)
+commands   help create destroy start stop status ssh console lock unlock provision reset deploy update export restore test
+reset      revert the disk to the "baseline" snapshot taken at the end of provision; fast alternative to destroy/create
+destroy    removes the container and disk/; keeps images/, golden.qcow2, keys, api.env and lock/
+destroy    --all: destroy plus removal of the whole $VM_STATE_DIR, so the next create downloads again;
+           refused with exit 3 while another packet holds the lock; run by the lock holder, it removes the lock last;
+           if golden.qcow2 exists it also needs --yes, because the golden image must then be rebuilt by hand
+restore    configuration import only: upload the snapshot's config.xml (otherwise the folder's single *.xml, e.g.
+           opnsense-test-vm.xml in the historical folder), reboot, wait for login; installs no packages
+           and restores no files. A test-vm/snapshots/ export restored onto a provisioned and deployed VM is a
+           working setup. The historical test-vm/restore/2026-10-11/ is import-only (login uses its own credentials);
+           afterwards the VM is tainted and only destroy may follow
+vm.env     VM_NAME OPNSENSE_VERSION IMAGE_URL IMAGE_SHA256 PLUGINS_COMMIT
+           SSH_PORT=12222 HTTPS_PORT=14443 VNC_PORT=15900 NAT_NET=198.18.0.0/24
+           ROOT_PASSWORD (throw-away, committed) SSH_KEY=$VM_STATE_DIR/vm_ed25519
+           VM_STATE_DIR  default: the main checkout's work/vm-state/, found via
+                         git rev-parse --path-format=absolute --git-common-dir (its parent is the main checkout),
+                         so every worktree uses the same directory; may be overridden in vm.env or as an
+                         environment variable (e.g. WP-05's destroy --all check on a temporary directory)
+generated  in $VM_STATE_DIR/: disk/ · images/ (verified downloads) · golden.qcow2 · vm_ed25519 (SSH key) · api.env · lock/ (lock directory)
+screens    UI screenshots go to &lt;main-checkout&gt;/work/screens/, outside $VM_STATE_DIR, so they survive destroy --all
+           (all git-ignored)
+exit codes 0 ok · 1 failure · 2 usage · 3 VM lock missing or held by another packet</pre>
+
+<h2>11. Work packets and implementation process</h2>
+<p>This plan defines <i>what</i> to build. <i>How</i> it gets built is in <a href="revision-history.md"><code>docs/implementation/</code></a> <em>(archived in the tag <code>revision-process</code>)</em>, kept as markdown so agents can tick checkboxes:</p>
+<ul>
+  <li><a href="revision-history.md"><code>docs/implementation/README.md</code></a> <em>(in the tag <code>revision-process</code>)</em> covers roles (coordinator, implementer, reviewer, owner), the packet workflow with git worktrees, the review loop, finding severities, the termination rule, the gates (ready for review, merge approval, milestone acceptance) and test-VM scheduling.</li>
+  <li><a href="revision-history.md"><code>work-packets.md</code></a> <em>(in the tag <code>revision-process</code>)</em> is the coordinator's status board and milestone checklist.</li>
+  <li><code>wp/WP-01.md … WP-13.md</code> hold one packet each: owned paths, task and acceptance checkboxes, review rounds and findings. Each packet owns its own file, so parallel agents never conflict on tracking.</li>
+  <li><a href="revision-history.md"><code>milestones.md</code></a> <em>(in the tag <code>revision-process</code>)</em> holds the two-lens milestone reviews (correctness and contracts; user and operator view).</li>
+</ul>
+
+<figure>
+<svg class="dg" viewBox="0 0 1100 445" role="img" aria-label="Work packet dependency graph">
+  <text x="95" y="24" text-anchor="middle" class="head">WAVE 0</text><text x="315" y="24" text-anchor="middle" class="head">WAVE 1</text>
+  <text x="555" y="24" text-anchor="middle" class="head">WAVE 2</text><text x="785" y="24" text-anchor="middle" class="head">WAVE 3 → 4</text>
+  <text x="1005" y="24" text-anchor="middle" class="head">WAVE 5</text>
+  <path class="arrow" d="M180,222 C205,222 205,60 226,60"/><path class="arrow" d="M180,222 C205,222 205,125 226,125"/>
+  <path class="arrow" d="M180,222 C205,222 205,190 226,190"/><path class="arrow" d="M180,222 C205,222 205,255 226,255"/>
+  <path class="arrow" d="M180,222 C205,222 205,320 226,320"/><path class="arrow" d="M180,222 C205,222 205,385 226,385"/>
+  <path class="arrow" d="M400,60 H1005 V166"/>
+  <path class="arrow" d="M400,125 C435,125 435,158 466,158"/><path class="arrow" d="M400,190 C435,190 435,158 466,158"/>
+  <path class="arrow" d="M400,255 C435,255 435,158 466,158"/><path class="arrow" d="M400,385 H466"/>
+  <path class="arrow" d="M640,158 H696"/><path class="arrow" d="M640,158 C670,158 670,320 696,320"/>
+  <path class="arrow" d="M640,385 C670,385 670,320 696,320"/><path class="arrow" d="M785,178 V296"/>
+  <path class="arrow" d="M870,158 C895,158 895,190 916,190"/><path class="arrow" d="M870,320 C895,320 895,190 916,190"/>
+  <path class="arrow" d="M400,320 H430 V432 H1005 V344"/><path class="arrow" d="M1005,210 V296"/>
+  <path class="arrow" d="M785,60 V134"/><path class="arrow" d="M680,60 V245 H745 V296"/><path class="arrow" d="M610,365 V215 H725 V182"/>
+
+  <rect class="box new" x="10" y="202" width="170" height="40" rx="6"/><text x="95" y="219" text-anchor="middle" class="lbl" font-weight="700">WP-01 · Prune</text><text x="95" y="234" text-anchor="middle" class="small">M1</text>
+  <rect class="box new" x="230" y="40" width="170" height="40" rx="6"/><text x="315" y="57" text-anchor="middle" class="lbl" font-weight="700">WP-02 · Template</text><text x="315" y="72" text-anchor="middle" class="small">M2</text>
+  <rect class="box new" x="230" y="105" width="170" height="40" rx="6"/><text x="315" y="122" text-anchor="middle" class="lbl" font-weight="700">WP-03 · Model</text><text x="315" y="137" text-anchor="middle" class="small">M2</text>
+  <rect class="box new" x="230" y="170" width="170" height="40" rx="6"/><text x="315" y="187" text-anchor="middle" class="lbl" font-weight="700">WP-04 · Catalog</text><text x="315" y="202" text-anchor="middle" class="small">M2</text>
+  <rect class="box new" x="230" y="235" width="170" height="40" rx="6"/><text x="315" y="252" text-anchor="middle" class="lbl" font-weight="700">WP-07 · Test backend</text><text x="315" y="267" text-anchor="middle" class="small">M2</text>
+  <rect class="box new" x="230" y="300" width="170" height="40" rx="6"/><text x="315" y="317" text-anchor="middle" class="lbl" font-weight="700">WP-10 · Manual guide</text><text x="315" y="332" text-anchor="middle" class="small">M1</text>
+  <rect class="box opt" x="230" y="365" width="170" height="40" rx="6"/><text x="315" y="382" text-anchor="middle" class="lbl" font-weight="700">WP-05 · VM base</text><text x="315" y="397" text-anchor="middle" class="small">M3 · vm</text>
+  <rect class="box new" x="470" y="138" width="170" height="40" rx="6"/><text x="555" y="155" text-anchor="middle" class="lbl" font-weight="700">WP-08 · APIs + status</text><text x="555" y="170" text-anchor="middle" class="small">M4</text>
+  <rect class="box opt" x="470" y="365" width="170" height="40" rx="6"/><text x="555" y="382" text-anchor="middle" class="lbl" font-weight="700">WP-06 · VM provision</text><text x="555" y="397" text-anchor="middle" class="small">M3 · vm</text>
+  <rect class="box opt" x="700" y="138" width="170" height="40" rx="6"/><text x="785" y="155" text-anchor="middle" class="lbl" font-weight="700">WP-09 · UI</text><text x="785" y="170" text-anchor="middle" class="small">M4 · vm</text>
+  <rect class="box opt" x="700" y="300" width="170" height="40" rx="6"/><text x="785" y="317" text-anchor="middle" class="lbl" font-weight="700">WP-11 · Smoke tests</text><text x="785" y="332" text-anchor="middle" class="small">M4 · vm</text>
+  <rect class="box opt" x="920" y="170" width="170" height="40" rx="6"/><text x="1005" y="187" text-anchor="middle" class="lbl" font-weight="700">WP-12 · End-to-end</text><text x="1005" y="202" text-anchor="middle" class="small">M5 · vm</text>
+  <rect class="box new" x="920" y="300" width="170" height="40" rx="6"/><text x="1005" y="317" text-anchor="middle" class="lbl" font-weight="700">WP-13 · Final docs</text><text x="1005" y="332" text-anchor="middle" class="small">M5</text>
+</svg>
+<figcaption><b>Figure 7 · Work packets.</b> An arrow means "must be merged first". Up to six packets run in parallel in wave 1. WP-09 already uses the VM while building the UI, and WP-11 runs after it so that M4 proves the UI on the VM.
+Blue dashed packets need the single test VM and are serialized through its lock. The contracts above let WP-02, 03, 04 and 07 proceed without waiting for each other.</figcaption>
+</figure>
+
+<figure>
+<svg class="dg" viewBox="0 45 1100 190" role="img" aria-label="Review loop">
+  <rect class="box new" x="10" y="80" width="150" height="50" rx="6"/><text x="85" y="102" text-anchor="middle" class="lbl" font-weight="700">Implement</text><text x="85" y="119" text-anchor="middle" class="small">worktree, tick tasks</text>
+  <rect class="box new" x="200" y="80" width="160" height="50" rx="6"/><text x="280" y="102" text-anchor="middle" class="lbl" font-weight="700">Review round N</text><text x="280" y="119" text-anchor="middle" class="small">independent reviewer</text>
+  <polygon class="box" points="450,58 525,105 450,152 375,105"/><text x="450" y="101" text-anchor="middle" class="small">new or open</text><text x="450" y="115" text-anchor="middle" class="small">findings ≥ minor?</text>
+  <rect class="box new" x="370" y="178" width="160" height="46" rx="6"/><text x="450" y="198" text-anchor="middle" class="lbl" font-weight="700">Fix + answer each</text><text x="450" y="214" text-anchor="middle" class="small">fixed in &lt;sha&gt; / won't fix</text>
+  <rect class="box new" x="575" y="80" width="150" height="50" rx="6"/><text x="650" y="102" text-anchor="middle" class="lbl" font-weight="700">Review passed</text><text x="650" y="119" text-anchor="middle" class="small">reviewer ticks</text>
+  <rect class="box new" x="765" y="80" width="130" height="50" rx="6"/><text x="830" y="102" text-anchor="middle" class="lbl" font-weight="700">Merge</text><text x="830" y="119" text-anchor="middle" class="small">coordinator</text>
+  <rect class="box opt" x="935" y="80" width="155" height="50" rx="6"/><text x="1012" y="102" text-anchor="middle" class="lbl" font-weight="700">Milestone review</text><text x="1012" y="119" text-anchor="middle" class="small">2 lenses, same loop</text>
+  <path class="arrow" d="M160,105 H196"/><path class="arrow" d="M360,105 H371"/>
+  <path class="arrow" d="M450,152 V174"/><text x="458" y="168" class="small">yes</text>
+  <path class="arrow" d="M370,201 H280 V134"/><text x="288" y="160" class="small">round N+1</text>
+  <path class="arrow" d="M525,105 H571"/><text x="535" y="98" class="small">no</text>
+  <path class="arrow" d="M725,105 H761"/><path class="arrow opt" d="M895,105 H931"/>
+  <text x="575" y="175" class="small">Escalate to the owner if round 3 still finds new blocker/major</text>
+  <text x="575" y="191" class="small">issues, or if implementer and reviewer disagree.</text>
+</svg>
+<figcaption><b>Figure 8 · Review loop.</b> A packet passes only in a round with no new findings of severity minor or higher, all blocker/major findings fixed and verified,
+and every minor finding fixed or covered by an approved won't-fix. Nits never block.</figcaption>
+</figure>
+
+<h2>12. Risks and spikes</h2>
+<table class="t">
+  <tr><th>Risk</th><th>Mitigation</th></tr>
+  <tr><td>Strip regexes break when the stock template changes its <code>server_names</code>/<code>routes</code> formatting.</td><td>Render tests pin today's stock template. The VM smoke test renders the <i>installed</i> stock template. If the <code>[anonymized_dns]</code> anchor is missing, the template fails closed (DNS stops rather than going direct) with the <code>override-not-applied</code> marker, and the status strip reports it, so the change can't go unnoticed.</td></tr>
+  <tr><td>Unattended OPNsense install and config seeding on the nano image.</td><td>Time-boxed spike in WP-05. If it fails, the fallback is a one-time manual install kept as a reusable "golden" qcow2 at <code>$VM_STATE_DIR/golden.qcow2</code>, with everything after that scripted.</td></tr>
+  <tr><td>The side instance competes with the running service for CPU and catalog downloads.</td><td>Copy the cached signed catalogs into the temp directory, cap the run at 90 s and always kill the instance in <code>finally</code>.</td></tr>
+  <tr><td>Installing the plugin on a router that uses the manual override.</td><td>A disabled plugin defers to the manual template while its 90-eu mapping is active (an orphan template file is ignored), so nothing changes until routing is enabled. Render tests (WP-02) and the VM coexistence check (WP-11) cover it.</td></tr>
+  <tr><td>Operator guesses are wrong, for example for shared hosting.</td><td>The tag is always editable. The UI says it is an application-level separation, not proof against collusion, which matches the README caveat.</td></tr>
+  <tr><td>A resolver changes protocol or loses its route after saving (catalog update).</td><td>Prevented: the forced protocol filters (R-02) drop a resolver that turns into DoH or ODoH, and a resolver without a valid route can't be used. As a backstop, the runtime log check raises a "direct connection detected" alert, and Save &amp; Test fails such resolvers.</td></tr>
+  <tr><td>The old v0.1 plugin on the VM left a <code>pkg lock</code> and managed files behind.</td><td>No migration code: the VM is rebuilt by the scripts.</td></tr>
+</table>
+
+<h2>13. Open questions</h2>
+<p class="muted">None. All decisions are recorded in section 1.</p>
+
+<p class="muted" style="margin-top:40px">Sources: <a href="https://docs.opnsense.org/development/backend/templates.html">OPNsense templates (+TARGETS.D)</a> ·
+<a href="https://github.com/opnsense/core/blob/master/src/opnsense/service/modules/template.py">template.py (target_root_directory, regex_replace, overlay order)</a> ·
+<a href="https://github.com/opnsense/plugins/tree/master/dns/dnscrypt-proxy">stock os-dnscrypt-proxy</a> ·
+<a href="https://raw.githubusercontent.com/DNSCrypt/dnscrypt-proxy/2.1.15/dnscrypt-proxy/example-dnscrypt-proxy.toml">dnscrypt-proxy 2.1.15 example config</a></p>
+</div>
+
+<script>
+(() => {
+  const data = [
+    { area: "Tests",                 today: 6134, after: 500 },
+    { area: "Process documents",     today: 4138, after: 250 },
+    { area: "Plugin backend scripts",today: 2627, after: 300 },
+    { area: "Test VM (snapshot + tools)", today: 1389, after: 1650 },
+    { area: "Manual kit + README",   today: 972,  after: 650 },
+    { area: "Plugin MVC / UI",       today: 718,  after: 500 },
+  ];
+  const svg = document.getElementById("sizeChart"), ns = "http://www.w3.org/2000/svg";
+  const L = 210, W = 640, max = 6500, rowH = 46, top = 10, barH = 15, gap = 2;
+  const x = v => (v / max) * W;
+  const el = (n, a, t) => { const e = document.createElementNS(ns, n); for (const k in a) e.setAttribute(k, a[k]); if (t != null) e.textContent = t; svg.appendChild(e); return e; };
+  const bar = (x0, y, w, h) => w < 8 ? `M${x0},${y}h${w}v${h}h${-w}z`
+    : `M${x0},${y}h${w-4}a4,4 0 0 1 4,4v${h-8}a4,4 0 0 1 -4,4h${-(w-4)}z`;
+  for (let v = 0; v <= 6000; v += 2000) {
+    el("line", { x1: L + x(v), x2: L + x(v), y1: top - 4, y2: top + data.length * rowH, class: "grid" });
+    el("text", { x: L + x(v), y: top + data.length * rowH + 16, "text-anchor": "middle" }, v.toLocaleString("en"));
+  }
+  const tip = document.getElementById("vizTip");
+  data.forEach((d, i) => {
+    const y = top + i * rowH + 6;
+    el("text", { x: L - 10, y: y + barH + 4, "text-anchor": "end" }, d.area);
+    el("path", { d: bar(L, y, x(d.today), barH), fill: "var(--series-1)" });
+    el("path", { d: bar(L, y + barH + gap, x(d.after), barH), fill: "var(--series-2)" });
+    el("text", { x: L + x(d.today) + 6, y: y + 12, class: "val" }, d.today.toLocaleString("en"));
+    el("text", { x: L + x(d.after) + 6, y: y + barH + gap + 12, class: "val" }, "~" + d.after.toLocaleString("en"));
+    const hit = el("rect", { x: 0, y: y - 4, width: 980, height: rowH - 4, class: "hit" });
+    hit.addEventListener("mousemove", e => {
+      tip.style.display = "block"; tip.style.left = (e.clientX + 14) + "px"; tip.style.top = (e.clientY + 14) + "px";
+      tip.innerHTML = `<b>${d.area}</b><br>Today: ${d.today.toLocaleString("en")} lines<br>After: ~${d.after.toLocaleString("en")} lines (estimate)`;
+    });
+    hit.addEventListener("mouseleave", () => tip.style.display = "none");
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${d.area}</td><td>${d.today.toLocaleString("en")}</td><td>~${d.after.toLocaleString("en")}</td>`;
+    document.getElementById("sizeTable").appendChild(tr);
+  });
+  const tot = data.reduce((a, d) => [a[0] + d.today, a[1] + d.after], [0, 0]);
+  const tr = document.createElement("tr");
+  tr.innerHTML = `<td><b>Total</b></td><td><b>${tot[0].toLocaleString("en")}</b></td><td><b>~${tot[1].toLocaleString("en")}</b></td>`;
+  document.getElementById("sizeTable").appendChild(tr);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+#!/bin/sh
+echo ";; ->>HEADER<<- opcode: QUERY, rcode: NOERROR, id: 1"

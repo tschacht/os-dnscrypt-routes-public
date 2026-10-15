@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+# Test VM command line (plan C-07): vm <cmd> [args]  ->  lib/cmd-<cmd>.sh
+set -euo pipefail
+unset CDPATH
+
+VM_DIR="$(cd -P -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
+export VM_DIR
+# shellcheck source=lib/common.sh
+. "$VM_DIR/lib/common.sh"
+
+COMMANDS="help create destroy start stop status ssh console lock unlock provision reset deploy update export restore test"
+
+usage() {
+  cat <<USAGE
+usage: test-vm/vm <cmd> [args]
+
+commands
+  help                 this text
+  create               download + verify the image, build the disk, start the VM, wait for SSH
+  destroy [--all [--yes]]
+                       remove container and disk/ (keeps images/, golden.qcow2, keys, api.env, lock/);
+                       --all also removes the whole \$VM_STATE_DIR
+  start | stop         start or stop the existing container
+  status               container, SSH, lock, taint and baseline-snapshot state
+  ssh [cmd...]         run a command in the VM (or open a shell)
+  console              print the VNC address (loopback only)
+  lock <ID>            take the VM lock (exit 3 if held by another checkout)
+  unlock [--force]     release the lock (--force: also one held by another checkout, e.g. a stale one)
+  provision [--logging]
+                       configure the stock VM (os-dnscrypt-proxy, Unbound, API key) and take the "baseline" snapshot
+  reset                revert to the "baseline" snapshot and start the VM
+  deploy               build and install this checkout's plugin in the VM
+  update               update OPNsense firmware and packages in the VM, then deploy again
+  export [--to <dir>]  save the VM's config.xml + manifest (default test-vm/snapshots/<UTC date>)
+  restore <dir>        import a saved config.xml (foreign credentials taint the VM)
+  test [check...]      on-device smoke tests (check names: test-vm/README.md)
+
+typical order: create, provision, deploy (then reset between runs)
+rough timings (Apple silicon host, emulated guest): create ~5 min, provision ~5 min, deploy ~0.5 min,
+update ~7.5 min, reset ~2.5-3 min, restore ~2-3 min, test ~14 min
+
+exit codes: 0 ok, 1 failure, 2 usage, 3 VM lock missing or held by another checkout
+USAGE
+}
+
+cmd="${1:-help}"
+[ $# -gt 0 ] && shift
+
+case "$cmd" in
+  help|-h|--help) usage; exit 0 ;;
+esac
+
+case " $COMMANDS " in
+  *" $cmd "*) ;;
+  *) echo "vm: unknown command '$cmd'" >&2; usage >&2; exit 2 ;;
+esac
+
+script="$VM_DIR/lib/cmd-$cmd.sh"
+if [ ! -f "$script" ]; then
+  echo "vm: '$cmd' is not implemented yet" >&2
+  exit 2
+fi
+
+# shellcheck source=/dev/null
+. "$script"
+"cmd_$cmd" "$@"

@@ -1,0 +1,122 @@
+{
+  "administrative_changes": {
+    "automatic_retry_or_rollback": false,
+    "dnscrypt_query_logs": {
+      "administrative_restarts": 1,
+      "fixed_eu_policy_and_other_runtime_fields_preserved": true,
+      "native_save_count": 1,
+      "running_policy_confirmed": true,
+      "status": "PASS",
+      "template_generations": 1
+    },
+    "explicit_cache_flush": false,
+    "plugin_apply_performed": false,
+    "unbound_query_logs": {
+      "dnscrypt_restarts": 0,
+      "native_save_count": 1,
+      "running_log_queries": "yes",
+      "status": "PASS",
+      "unbound_apply_count": 1
+    },
+    "unbound_reply_logs": {
+      "dnscrypt_restarts": 0,
+      "native_save_count": 1,
+      "running_log_replies": "yes",
+      "status": "PASS",
+      "unbound_apply_count": 1
+    }
+  },
+  "administrative_helpers_sha256": {
+    "check-test-vm-backup-final.py": "2319b83a5da95ec019db4542de4dfb3362a4cbcd30e3664e1ef342bf9a57b7ff",
+    "check-test-vm-backup-parser.php": "bda029d7b0827bc6cfdde87e6924d35466550b7cbd42e3b100567b16ce4717a9",
+    "enable-test-vm-query-logs.php": "41e68c117aaecde016e5466f2178d4309e666522c7f00aac2bdb8dbf22e3f854",
+    "enable-test-vm-query-logs.py": "8a5703a7662effbe998bbe180a0ca6b2d5ff9b1cc6b6d1e1a34dc0d9d50ca352",
+    "enable-test-vm-unbound-query-logs.php": "a22a0effadf0d4836617ce6f0d1123f451f87163fa049f6b4bb3fec61c87d2d9",
+    "enable-test-vm-unbound-query-logs.py": "0eaeeb7397d09d79fd3d6d05e8e40e0f8353e8155352a7978be6bea00cda5e88",
+    "enable-test-vm-unbound-reply-logs.php": "5d969ca1009e1c00416acdfdb84b4645aa1b0f5ea4db01efe53d23c8d194fa0c",
+    "enable-test-vm-unbound-reply-logs.py": "e86fd7ea72dbae84e083fc224fdde49eca8a0470251ecf220f5e83033cf2de05",
+    "export-test-vm-backup.py": "ae3f5629c9efc79c1997d2ec79f3d6ae38119858fab9b15459fb59b4891a287e",
+    "verify-test-vm-backup.py": "23bd83242752f86774f67c52874dcfe5c81c2980390b1f362f16c8373231744c"
+  },
+  "backup_excludes": [
+    "query and application log contents",
+    "RRD history",
+    "VM disk/image",
+    "pkg database",
+    "host-side SSH private key",
+    "authenticated HTTP session fixtures"
+  ],
+  "captured_date": "2026-10-11",
+  "companion_implementation_revision": "53815724250f467ecd6f02fa59db26aeaf22c47a",
+  "encrypted": false,
+  "files": {
+    "companion-files.tar.gz": {
+      "bytes": 158405,
+      "sha256": "f91d11327df926ed2f45564a571c88cd126194df1377779f5b868e6fddb9eca9"
+    },
+    "opnsense-test-vm.xml": {
+      "bytes": 47493,
+      "sha256": "24945e66bc1caa9971d8cdb3b629c11d5576256cec15a31e22b7f8f27a519120"
+    }
+  },
+  "final_native_readonly_check": {
+    "current_readiness": "ready",
+    "dns_queries": 0,
+    "exit_code": 0,
+    "live_config_still_matches_export": true,
+    "native_pkg_integrity_verified": true,
+    "package_protection_verified": true,
+    "production_access": false,
+    "restore_performed": false,
+    "retained_snapshots_and_pid_unchanged": true,
+    "running_policy_confirmed": true,
+    "service_requests": 0,
+    "status": "PASS"
+  },
+  "host_verification": {
+    "copied_file_checksums_match": true,
+    "exit_code": 0,
+    "fixed_eu_pool_and_listener_preserved": true,
+    "matching_candidate_package_sha256": true,
+    "python": "3.13",
+    "query_log_contents_included": false,
+    "safe_archive_member_count": 104,
+    "status": "PASS",
+    "xml_settings_and_catchall_forwarder_verified": true
+  },
+  "installed_package": {
+    "archive_member": "var/db/dnscrypt-eu/upgrade-candidate.pkg",
+    "host_path": "/Users/lumpy/dev/opnsense-dnscrypt-eu/work/native-packages/5381572/os-dnscrypt-eu-0.1.pkg",
+    "sha256": "f1309c363d28ea4d8abe83987c3965608913e1b7bbd4313c3c00826118cbb953"
+  },
+  "native_export_evidence": "evidence.json",
+  "native_restore_parser": {
+    "all_three_logging_preferences": true,
+    "exit_code": 0,
+    "export_matches_live_config": true,
+    "function": "load_config_from_file",
+    "live_config_unchanged": true,
+    "restore_performed": false,
+    "service_requests": 0,
+    "status": "PASS"
+  },
+  "owner_authorized_test_vm_credentials_in_git": true,
+  "production_access": false,
+  "production_data_included": false,
+  "purpose": "Owner-requested restore backup of the existing disposable test VM",
+  "restore_acceptance": {
+    "backend_acceptance_remains_owner_deferred": true,
+    "full_restore_performed": false,
+    "new_disk_companion_journal_provenance_verified": false,
+    "reboot_performed_for_this_backup": false
+  },
+  "target": "dnscrypt-eu-offline-20261011",
+  "versions": {
+    "architecture": "amd64",
+    "dnscrypt-proxy_binary": "2.1.15",
+    "opnsense": "26.7.6_3",
+    "os-dnscrypt-eu": "0.1",
+    "os-dnscrypt-proxy": "1.17",
+    "unbound": "1.25.1"
+  }
+}

@@ -1,0 +1,41 @@
+# dnscrypt-routes: managed
+server_names = ['good-dnscrypt']
+listen_addresses = ['127.0.0.1:5353']
+max_clients = 250
+ipv4_servers = true
+log_level = 2
+log_file = '/var/log/dnscrypt-proxy/dnscrypt-proxy.log'
+use_syslog = false
+forwarding_rules = 'forwarding-rules.txt'
+
+[query_log]
+  file = '/var/log/dnscrypt-proxy/query.log'
+  format = 'tsv'
+
+[nx_log]
+  file = '/var/log/dnscrypt-proxy/nx.log'
+  format = 'tsv'
+
+[allowed_names]
+  allowed_names_file = 'whitelist.txt'
+  log_file = '/var/log/dnscrypt-proxy/whitelisted.log'
+  log_format = 'tsv'
+
+[sources]
+  [sources.'public-resolvers']
+  urls = ['https://download.dnscrypt.info/resolvers-list/v3/public-resolvers.md']
+  cache_file = 'public-resolvers.md'
+  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+
+  [sources.'relays']
+  urls = ['https://download.dnscrypt.info/resolvers-list/v3/relays.md']
+  cache_file = '/usr/local/etc/dnscrypt-proxy/relays.md'
+  minisign_key = 'RWQf6LRCGA9i53mlYecO4IzT51TGPpvWucNSCh1CBM0QTaLn73Y7GFO3'
+
+[anonymized_dns]
+ routes = [
+    { server_name='good-dnscrypt', via=['anon-relay-a','anon-relay-b'] }
+ ]
+ skip_incompatible = true
+
+[static]

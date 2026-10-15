@@ -1,0 +1,90 @@
+<model>
+    <mount>//OPNsense/dnscryptroutes</mount>
+    <version>1.0.0</version>
+    <description>Per-resolver anonymized DNSCrypt routes</description>
+    <items>
+        <general>
+            <enabled type="BooleanField">
+                <Default>0</Default>
+                <Required>Y</Required>
+            </enabled>
+            <lbStrategy type="OptionField">
+                <Required>Y</Required>
+                <Default>wp2</Default>
+                <OptionValues>
+                    <first>first: always the fastest</first>
+                    <p2>p2: random of the fastest two</p2>
+                    <ph>ph: random of the fastest half</ph>
+                    <random>random: any server</random>
+                    <wp2>wp2: weighted best of two random (default)</wp2>
+                </OptionValues>
+            </lbStrategy>
+            <skipIncompatible type="BooleanField">
+                <Default>1</Default>
+                <Required>Y</Required>
+            </skipIncompatible>
+            <directCertFallback type="BooleanField">
+                <Default>1</Default>
+                <Required>Y</Required>
+            </directCertFallback>
+            <ecsEnabled type="BooleanField">
+                <Default>0</Default>
+                <Required>Y</Required>
+            </ecsEnabled>
+            <ecsSubnet type="NetworkField">
+                <Default>146.70.82.0/24</Default>
+                <Required>Y</Required>
+                <AsList>N</AsList>
+                <NetMaskRequired>Y</NetMaskRequired>
+                <WildcardEnabled>N</WildcardEnabled>
+            </ecsSubnet>
+        </general>
+        <relays>
+            <relay type="ArrayField">
+                <name type="TextField">
+                    <Required>Y</Required>
+                    <Constraints>
+                        <check001>
+                            <ValidationMessage>Relay names must be unique.</ValidationMessage>
+                            <type>UniqueConstraint</type>
+                        </check001>
+                    </Constraints>
+                </name>
+                <operator type="TextField">
+                    <Required>Y</Required>
+                </operator>
+            </relay>
+        </relays>
+        <resolvers>
+            <resolver type="ArrayField">
+                <enabled type="BooleanField">
+                    <Default>1</Default>
+                    <Required>Y</Required>
+                </enabled>
+                <name type="TextField">
+                    <Required>Y</Required>
+                    <Constraints>
+                        <check001>
+                            <ValidationMessage>Resolver names must be unique.</ValidationMessage>
+                            <type>UniqueConstraint</type>
+                        </check001>
+                    </Constraints>
+                </name>
+                <operator type="TextField">
+                    <Required>Y</Required>
+                </operator>
+                <relays type="ModelRelationField">
+                    <Model>
+                        <relay>
+                            <source>OPNsense.DnscryptRoutes.DnscryptRoutes</source>
+                            <items>relays.relay</items>
+                            <display>name</display>
+                        </relay>
+                    </Model>
+                    <Multiple>Y</Multiple>
+                    <Required>N</Required>
+                </relays>
+            </resolver>
+        </resolvers>
+    </items>
+</model>

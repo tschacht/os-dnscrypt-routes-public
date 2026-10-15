@@ -1,0 +1,4 @@
+[2026-10-12 10:00:00] [NOTICE] dnscrypt-proxy 2.1.15
+[2026-10-12 10:00:01] [NOTICE] Anonymizing queries for [a] via [anon-x]
+[2026-10-12 10:00:02] [NOTICE] [a] OK (DNSCrypt) - rtt: 41ms
+[2026-10-12 10:00:03] [NOTICE] Server with the lowest initial latency: a (rtt: 41ms), live servers: 1

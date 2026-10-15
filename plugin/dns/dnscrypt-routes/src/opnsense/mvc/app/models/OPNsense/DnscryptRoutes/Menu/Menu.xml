@@ -1,0 +1,7 @@
+<menu>
+    <Services>
+        <DNSCrypt-Proxy>
+            <AnonymizedRouting VisibleName="Anonymized Routing" order="15" url="/ui/dnscryptroutes"/>
+        </DNSCrypt-Proxy>
+    </Services>
+</menu>

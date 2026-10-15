@@ -1,0 +1,76 @@
+{#- os-dnscrypt-routes: wraps the stock os-dnscrypt-proxy template (plan section 3, R-01..R-04, C-06). -#}
+{% set stock_tpl = 'OPNsense/Dnscryptproxy/dnscrypt-proxy.toml' %}
+{% if not (helpers.exists('OPNsense.dnscryptroutes.general.enabled') and OPNsense.dnscryptroutes.general.enabled == '1') %}
+{# Disabled: same output as without the plugin. The manual override counts only while its 90-eu mapping is active. #}
+{%   set eu_map %}{% include 'OPNsense/Dnscryptproxy/+TARGETS.D/90-eu.TARGET' ignore missing %}{% endset %}
+{%   if 'dnscrypt-proxy-eu.toml:/usr/local/etc/dnscrypt-proxy/dnscrypt-proxy.toml' in (eu_map.splitlines() | map('trim') | list) %}
+{%     include ['OPNsense/Dnscryptproxy/dnscrypt-proxy-eu.toml', stock_tpl] %}
+{%   else %}
+{%     include stock_tpl %}
+{%   endif %}
+{% else %}
+{# Enabled: render the stock template (never the manual one) and patch only what this plugin owns. #}
+{%   set stock %}{% include stock_tpl %}{% endset %}
+{%   if not (helpers.exists('OPNsense.dnscryptproxy.general.enabled') and OPNsense.dnscryptproxy.general.enabled == '1') %}
+{{ stock -}}
+{%   else %}
+{%     set g = OPNsense.dnscryptroutes.general %}
+{%     set ns = namespace(bad=false, names=[], routes=[]) %}
+{# Values go into TOML literal strings: a quote or any C0 control character except TAB, or DEL, is unusable. #}
+{%     set badre = "[\\x00-\\x08\\x0a-\\x1f\\x7f']" %}
+{%     set lb = g.lbStrategy | default('') | string %}
+{%     if lb == '' %}{% set ns.bad = true %}{% endif %}
+{%     set ecs = (g.ecsSubnet | default('') | string) if g.ecsEnabled | default('') == '1' else '' %}
+{%     if (lb | regex_replace(badre, '')) != lb %}{% set ns.bad = true %}{% endif %}
+{%     if g.ecsEnabled | default('') == '1' and (ecs == '' or '/' not in ecs or (ecs | regex_replace(badre, '')) != ecs) %}{% set ns.bad = true %}{% endif %}
+{%     for r in helpers.toList('OPNsense.dnscryptroutes.resolvers.resolver') if r.enabled | default('') == '1' %}
+{%       set rname = r.name | default('') | string %}
+{%       set vias = [] %}
+{%       if rname == '' %}{% set ns.bad = true %}{% endif %}
+{%       if (rname | regex_replace(badre, '')) != rname %}{% set ns.bad = true %}{% endif %}
+{%       for u in (r.relays | default('') | string).split(',') | map('trim') | reject('equalto', '') %}
+{%         set rl = helpers.getUUID(u) if helpers.getUUIDtag(u) == 'relay' else {} %}
+{%         set lname = rl.name | default('') | string %}
+{%         if lname == '' %}{% set ns.bad = true %}{% endif %}
+{%         if (lname | regex_replace(badre, '')) != lname %}{% set ns.bad = true %}{% endif %}
+{#         dnscrypt-proxy reads a via entry '*' as any relay and 'sdns:...' as a relay stamp (route(), serversInfo.go). #}
+{%         if '*' in lname or (lname | lower).startswith('sdns:') %}{% set ns.bad = true %}{% endif %}
+{%         do vias.append("'" ~ lname ~ "'") %}
+{%       endfor %}
+{%       if vias | length == 0 %}{% set ns.bad = true %}{% endif %}
+{%       do ns.names.append("'" ~ rname ~ "'") %}
+{%       do ns.routes.append("  { server_name='" ~ rname ~ "', via=[" ~ (vias | join(',')) ~ "] },") %}
+{%     endfor %}
+{%     if ns.names | length == 0 %}{% set ns.bad = true %}{% endif %}
+{# Strip the stock server_names line and the stock routes block. Absent is normal. #}
+{%     set stripped = stock | regex_replace('(?m)^server_names[ \t]*=.*\n', '') | regex_replace('(?m)^[ \t]*routes[ \t]*=[ \t]*\\[[ \t]*\n(?:.*\n)*?[ \t]*\\][ \t]*\n', '') %}
+{%     set why = "# DNS is stopped on purpose (fail closed): this config cannot be built safely, so no resolver is queried.\n" %}
+{%     set fix_settings = "# Fix: correct the settings under Services > DNSCrypt-Proxy > Anonymized Routing, or untick Enable anonymized routing and Save & Apply.\n" %}
+{%     set fix_stock = "# Fix: the stock os-dnscrypt-proxy template changed; untick Enable anonymized routing and Save & Apply, then update os-dnscrypt-routes.\n" %}
+{%     set failed_closed = "server_names = ['dnscrypt-routes-invalid-config']\n" %}
+{%     if ns.bad %}
+{{ '# dnscrypt-routes: invariant-violated\n' ~ why ~ fix_settings ~ failed_closed ~ stripped -}}
+{%     elif not ('\n[anonymized_dns]\n' in stripped and '\ndnscrypt_servers = ' in stripped and '\ndoh_servers = ' in stripped and '\nodoh_servers = ' in stripped) %}
+{{ '# dnscrypt-routes: override-not-applied\n' ~ why ~ fix_stock ~ failed_closed ~ stripped -}}
+{%     else %}
+{%       set owned %}
+# dnscrypt-routes: managed
+server_names = [{{ ns.names | join(',') }}]
+lb_strategy = '{{ lb }}'
+{%         if ecs != '' %}
+edns_client_subnet = ['{{ ecs }}']
+{%         endif %}
+{%       endset %}
+{%       set anon %}
+[anonymized_dns]
+skip_incompatible = {{ 'true' if g.skipIncompatible | default('') == '1' else 'false' }}
+direct_cert_fallback = {{ 'true' if g.directCertFallback | default('') == '1' else 'false' }}
+routes = [
+{{ ns.routes | join('\n') }}
+]
+{%       endset %}
+{%       set forced = stripped | regex_replace('(?m)^dnscrypt_servers = .*$', 'dnscrypt_servers = true') | regex_replace('(?m)^doh_servers = .*$', 'doh_servers = false') | regex_replace('(?m)^odoh_servers = .*$', 'odoh_servers = false') %}
+{{ owned ~ forced.replace('\n[anonymized_dns]\n', '\n' ~ anon, 1) -}}
+{%     endif %}
+{%   endif %}
+{% endif %}

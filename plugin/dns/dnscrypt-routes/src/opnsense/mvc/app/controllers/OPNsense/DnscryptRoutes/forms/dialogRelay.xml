@@ -1,0 +1,21 @@
+<form>
+    <field>
+        <id>catalog_relay</id>
+        <label>Pick from catalog</label>
+        <type>dropdown</type>
+        <hint>Search the signed relays.md catalog</hint>
+        <help>Searchable list of the relays in the signed relays.md catalog (name, country, description). Picking one fills in the name and the operator below; both stay editable.</help>
+    </field>
+    <field>
+        <id>relay.name</id>
+        <label>Relay</label>
+        <type>text</type>
+        <help>Relay name as in relays.md, for example anon-cs-de.</help>
+    </field>
+    <field>
+        <id>relay.operator</id>
+        <label>Operator</label>
+        <type>text</type>
+        <help>Who runs this relay. Pre-filled from the name (anon- stripped, first label, aliases such as cs → cryptostorm). A resolver can never use a relay with its own operator. This is an application-level separation, not proof against collusion.</help>
+    </field>
+</form>

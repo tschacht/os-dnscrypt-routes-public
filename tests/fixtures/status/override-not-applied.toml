@@ -1,0 +1,2 @@
+# dnscrypt-routes: override-not-applied
+server_names = ['dnscrypt-routes-invalid-config']

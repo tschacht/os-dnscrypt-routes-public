@@ -1,0 +1,40 @@
+# Disposable OPNsense test VM (plan C-07). Driven only by test-vm/vm; variables come from vm.env.
+# Full amd64 guest under software emulation (no KVM on the arm64 host). Pitfalls recorded in
+# pre-revision:docs/disposable-vm-proposal.md:
+#   - cap_drop ALL breaks the image's nginx wrapper, so WEB=N (VNC only).
+#   - an internal-only Docker network does not publish ports; use the normal project network.
+#   - QEMU user NAT is confined to this guest; published ports bind 127.0.0.1 only.
+services:
+  vm:
+    container_name: ${VM_NAME:?}
+    image: ${QEMU_IMAGE_REF:?}
+    platform: linux/arm64
+    environment:
+      KVM: "N"
+      CPU_MODEL: qemu64
+      CPU_CORES: "2"
+      RAM_SIZE: ${RAM_SIZE:?}
+      DISK_SIZE: 16G
+      DISK_FMT: qcow2
+      DISK_IO: threads
+      NETWORK: "N"
+      WEB: "N"
+      DISPLAY: vnc
+      SERIAL: /run/serial.sock
+      ARGUMENTS: >-
+        -netdev user,id=mgmt,net=${NAT_NET:?},host=198.18.0.2,dhcpstart=198.18.0.15,ipv6=off,restrict=off,hostfwd=tcp:0.0.0.0:${SSH_PORT:?}-198.18.0.15:22,hostfwd=tcp:0.0.0.0:${HTTPS_PORT:?}-198.18.0.15:443
+        -device virtio-net-pci,netdev=mgmt,id=nic,romfile=,mac=02:dc:0e:00:00:01
+        -drive file=fat:ro:/seed,format=raw,if=none,id=seed,readonly=on
+        -device usb-storage,drive=seed
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    ports:
+      - "127.0.0.1:${VNC_PORT:?}:5900"
+      - "127.0.0.1:${SSH_PORT}:${SSH_PORT}"
+      - "127.0.0.1:${HTTPS_PORT}:${HTTPS_PORT}"
+    volumes:
+      # a non-empty /storage/data.qcow2 is booted directly (SeaBIOS only boots the first disk,
+      # so the OS disk must be that one; a separate BOOT disk would come second)
+      - ${DISK_DIR:?}/os.qcow2:/storage/data.qcow2
+      - ${DISK_DIR}/seed:/seed:ro
+    restart: "no"

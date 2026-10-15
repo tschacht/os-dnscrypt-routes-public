@@ -1,0 +1,9 @@
+<acl>
+    <page-services-dnscryptroutes>
+        <name>Services: DNSCrypt-Proxy: Anonymized Routing</name>
+        <patterns>
+            <pattern>ui/dnscryptroutes/*</pattern>
+            <pattern>api/dnscryptroutes/*</pattern>
+        </patterns>
+    </page-services-dnscryptroutes>
+</acl>
